@@ -4,7 +4,7 @@ Software educacional para o ensino de **análise sintática** na disciplina de C
 
 > **Status:** Etapa 1 concluída (estrutura inicial, Docker e "Hello, World!"). As funcionalidades de análise serão desenvolvidas nas próximas etapas.
 
-- **Autor(a):** Lynkoln Heberth Pereira
+- **Autor:** Lynkoln Heberth Pereira
 - **Disciplina:** Compiladores — Universidade Federal de Jataí
 - **Professor:** Bruno Moraes Rocha (GitHub: `rocha3runo`)
 
@@ -65,7 +65,7 @@ FATOR       → identificador | número | string | ( EXPR )
 
 ## Pré-requisitos
 
-- [Git](https://git-scm.com/downloads)
+- [Git](https://git-scm.com/downloads) [versão utilizada - 2.51.0.windows.1]
 - [Docker](https://docs.docker.com/get-started/get-docker/) (no Windows e no macOS, o Docker Desktop)
 - Docker Compose v2 (já incluído no Docker Desktop; comando `docker compose`)
 
