@@ -4,9 +4,9 @@ Software educacional para o ensino de **análise sintática** na disciplina de C
 
 > **Status:** Etapa 1 concluída (estrutura inicial, Docker e "Hello, World!"). As funcionalidades de análise serão desenvolvidas nas próximas etapas.
 
-- **Autor(a):** [seu nome]
-- **Disciplina:** Compiladores — [instituição]
-- **Professor:** [nome do professor] (GitHub: `rocha3runo`)
+- **Autor(a):** Lynkoln Heberth Pereira
+- **Disciplina:** Compiladores — Universidade Federal de Jataí
+- **Professor:** Bruno Moraes Rocha (GitHub: `rocha3runo`)
 
 ## Linguagem escolhida e subconjunto
 
@@ -69,7 +69,7 @@ FATOR       → identificador | número | string | ( EXPR )
 - [Docker](https://docs.docker.com/get-started/get-docker/) (no Windows e no macOS, o Docker Desktop)
 - Docker Compose v2 (já incluído no Docker Desktop; comando `docker compose`)
 
-Versões utilizadas no desenvolvimento: Docker [preencher com `docker --version`] e Docker Compose [preencher com `docker compose version`].
+Versões utilizadas no desenvolvimento: Docker [29.8.2] e Docker Compose [v5.5.1].
 
 Portas livres necessárias: **8080** (interface) e **8000** (API).
 
