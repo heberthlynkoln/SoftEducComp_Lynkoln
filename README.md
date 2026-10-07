@@ -65,19 +65,19 @@ FATOR       → identificador | número | string | ( EXPR )
 
 ## Pré-requisitos
 
-- [Git](https://git-scm.com/downloads) [versão utilizada - 2.51.0.windows.1]
+- [Git](https://git-scm.com/downloads) 
 - [Docker](https://docs.docker.com/get-started/get-docker/) (no Windows e no macOS, o Docker Desktop)
 - Docker Compose v2 (já incluído no Docker Desktop; comando `docker compose`)
 
-Versões utilizadas no desenvolvimento: Docker [29.8.2] e Docker Compose [v5.5.1].
+Versões utilizadas no desenvolvimento: Git [2.51.0.windows.1], Docker [29.8.2] e Docker Compose [v5.5.1].
 
 Portas livres necessárias: **8080** (interface) e **8000** (API).
 
 ## Como executar
 
 ```bash
-git clone [URL do repositório]
-cd [nome-da-pasta]
+git clone [https://github.com/heberthlynkoln/SoftEducComp_Lynkoln.git]
+cd [SoftEducComp_Lynkoln]
 docker compose up --build
 ```
 
@@ -113,4 +113,8 @@ Procedimento seguido para validar que o projeto não depende de configurações 
 3. Conferir a mensagem em <http://localhost:8080>.
 4. Encerrar com `docker compose down`.
 
-Resultado: [preencher: data, sistema operacional e se funcionou].
+Resultado: validado em 07/10/2026, no Windows 11,
+com Docker 29.8.2 e Docker Compose v5.5.1. O repositório foi clonado em uma pasta nova
+e foi executado apenas `docker compose up --build`. A página em http://localhost:8080
+exibiu "Hello, World!" e a rota http://localhost:8000/api/hello respondeu
+{"message":"Hello, World!"}. O encerramento com `docker compose down` ocorreu sem erros.
