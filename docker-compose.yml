@@ -1,0 +1,23 @@
+# Orquestra os dois componentes da aplicação.
+# Para subir tudo:    docker compose up --build
+# Para encerrar tudo: docker compose down
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"   # opcional: permite testar a API direto em http://localhost:8000/api/hello
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"     # acesse em http://localhost:8080
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
