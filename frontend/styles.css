@@ -1,0 +1,86 @@
+:root {
+  --bg: #f7f7f5; --cartao: #ffffff; --fg: #1d2b2a; --muted: #5d6b6a; --borda: #d5dcdb;
+  --destaque: #1b6b4a; --destaque-fg: #ffffff; --ok: #1b6b4a; --erro: #a12c2c; --info: #1f5f8b;
+  --codigo-bg: #fbfbfa;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14201f; --cartao: #1c2b2a; --fg: #e8efee; --muted: #9db0ae; --borda: #35504d;
+    --destaque: #6fd1a3; --destaque-fg: #0f1b1a; --ok: #6fd1a3; --erro: #ff8a8a; --info: #8cc6f0;
+    --codigo-bg: #121c1b;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg); line-height: 1.5;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+.topo {
+  display: flex; flex-wrap: wrap; gap: .75rem 2rem; justify-content: space-between; align-items: flex-end;
+  padding: 1.25rem clamp(1rem, 4vw, 2.5rem); border-bottom: 1px solid var(--borda);
+}
+h1 { margin: 0; font-size: clamp(1.4rem, 4vw, 2rem); }
+h2 { margin: 0 0 1rem; font-size: 1.1rem; }
+.subtitulo { margin: .25rem 0 0; color: var(--muted); }
+.topo-info { display: flex; flex-direction: column; gap: .35rem; align-items: flex-start; }
+.selo {
+  background: var(--destaque); color: var(--destaque-fg); padding: .3rem .75rem;
+  border-radius: 999px; font-size: .9rem;
+}
+.status { font-size: .8rem; color: var(--muted); }
+.status[data-estado="ok"]::before   { content: "● "; color: var(--ok); }
+.status[data-estado="erro"]::before { content: "● "; color: var(--erro); }
+
+.painel {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem;
+  padding: 1.25rem clamp(1rem, 4vw, 2.5rem); max-width: 90rem; margin: 0 auto;
+}
+@media (max-width: 800px) { .painel { grid-template-columns: 1fr; } }
+.cartao {
+  background: var(--cartao); border: 1px solid var(--borda); border-radius: .75rem; padding: 1.25rem;
+}
+.campo { margin-bottom: 1rem; }
+label { display: block; font-weight: 600; margin-bottom: .3rem; }
+select, textarea {
+  width: 100%; padding: .55rem .7rem; color: var(--fg); background: var(--codigo-bg);
+  border: 1px solid var(--borda); border-radius: .5rem; font: inherit;
+}
+textarea {
+  font-family: ui-monospace, "Cascadia Code", Consolas, Menlo, monospace;
+  font-size: .95rem; line-height: 1.5; min-height: 16rem; resize: vertical; tab-size: 4; white-space: pre;
+}
+:focus-visible { outline: 3px solid var(--info); outline-offset: 2px; }
+.ajuda { margin: .3rem 0 0; font-size: .85rem; color: var(--muted); }
+.acoes { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; }
+button {
+  font: inherit; font-weight: 600; padding: .55rem 1.2rem; border-radius: .5rem; cursor: pointer;
+  border: 1px solid var(--destaque);
+}
+.primario { background: var(--destaque); color: var(--destaque-fg); }
+.secundario { background: transparent; color: var(--fg); border-color: var(--borda); }
+button:hover { filter: brightness(1.08); }
+.escopo { margin-top: 1.25rem; font-size: .9rem; color: var(--muted); }
+.escopo summary { cursor: pointer; color: var(--fg); font-weight: 600; }
+code {
+  font-family: ui-monospace, Consolas, Menlo, monospace; background: var(--codigo-bg);
+  padding: .05rem .3rem; border-radius: .25rem; border: 1px solid var(--borda);
+}
+.resultados {
+  min-height: 16rem; padding: 1rem; border: 1px dashed var(--borda); border-radius: .5rem;
+  background: var(--codigo-bg);
+}
+.resultados[data-estado="erro"]    { border: 1px solid var(--erro); }
+.resultados[data-estado="info"]    { border: 1px solid var(--info); }
+.resultados[data-estado="sucesso"] { border: 1px solid var(--ok); }
+.resultados .titulo-msg { margin: 0 0 .4rem; font-weight: 700; }
+.resultados[data-estado="erro"] .titulo-msg { color: var(--erro); }
+.resultados[data-estado="info"] .titulo-msg { color: var(--info); }
+.resultados p { margin: .3rem 0; }
+.vazio { color: var(--muted); }
+.rodape { text-align: center; color: var(--muted); font-size: .85rem; padding: 1rem; }
+.eco-codigo {
+  margin: .3rem 0 0; padding: .6rem .8rem; max-height: 14rem; overflow: auto;
+  background: var(--cartao); border: 1px solid var(--borda); border-radius: .4rem;
+  font-family: ui-monospace, Consolas, Menlo, monospace; font-size: .9rem; white-space: pre;
+}
+button:disabled { opacity: .6; cursor: progress; }

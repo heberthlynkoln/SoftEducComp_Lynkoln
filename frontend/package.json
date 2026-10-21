@@ -1,0 +1,6 @@
+{
+  "name": "frontend-compiladores",
+  "private": true,
+  "scripts": { "test": "vitest run" },
+  "devDependencies": { "jsdom": "^25.0.1", "vitest": "^2.1.8" }
+}
