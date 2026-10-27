@@ -27,12 +27,13 @@ export function backendSimulado(chamadas, { alterar = false, status = 200, corpo
     return Promise.resolve({
       ok: true, status: 200,
       json: async () => corpo !== undefined ? corpo : ({
-        recebido: true, mensagem: 'Código recebido com sucesso.',
+        recebido: true, sucesso: true, mensagem: 'Código recebido com sucesso.',
         codigo: alterar ? codigo + '!' : codigo,
         estatisticas: {
           linhas: contarLinhas(codigo), caracteres: codigo.length,
           bytes: new TextEncoder().encode(codigo).length,
         },
+        tokens: [], erros: [],   // o backend simulado não faz análise léxica
       }),
     });
   };
@@ -44,8 +45,9 @@ export const erroApi = (codigo, mensagem, detalhes = []) =>
 
 // Resposta 200 mínima válida, para testes que controlam o fetch manualmente.
 export const sucessoApi = (codigo) => ({
-  recebido: true, mensagem: 'Código recebido com sucesso.', codigo,
+  recebido: true, sucesso: true, mensagem: 'Código recebido com sucesso.', codigo,
   estatisticas: { linhas: contarLinhas(codigo), caracteres: codigo.length, bytes: codigo.length },
+  tokens: [], erros: [],
 });
 
 export class ArmazenamentoFalso {

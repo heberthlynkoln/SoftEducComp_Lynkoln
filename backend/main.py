@@ -3,10 +3,11 @@
 Contrato completo em docs/API.md. Organização:
   main.py          rotas e tratamento padronizado de erros
   schemas.py       modelos de entrada, saída e erro
-  processamento.py validações iniciais e ponto de extensão para os analisadores
+  processamento.py validações iniciais e orquestração da análise
+  scanner.py       analisador léxico (tokens e erros léxicos)
 
-Etapa 5: a API recebe o código como texto, faz validações iniciais e responde de
-forma estruturada. Ainda não há análise léxica, sintática ou semântica.
+Etapa 3 do roteiro: a API valida o código e executa a análise léxica. A análise
+sintática (Etapa 4) e a semântica ainda não existem.
 """
 import logging
 
@@ -22,7 +23,7 @@ logger = logging.getLogger("api")
 
 app = FastAPI(
     title="Visualizador de Análise Sintática - API",
-    description="Recebe código Python (subconjunto de atribuições) e devolve respostas estruturadas.",
+    description="Recebe código Python (subconjunto de atribuições), executa a análise léxica e devolve tokens e erros.",
     docs_url="/api/docs",        # acessível também pelo Nginx em http://localhost:8080/api/docs
     openapi_url="/api/openapi.json",
     redoc_url=None,
@@ -38,8 +39,9 @@ def resposta_erro(status: int, codigo: str, mensagem: str, detalhes=None) -> JSO
 @app.post(
     "/api/analisar",
     response_model=RespostaRecebimento,
-    summary="Recebe o código-fonte",
+    summary="Recebe o código-fonte e executa a análise léxica",
     responses={
+        200: {"description": "Código recebido. `sucesso` é false quando há erros léxicos (a lista `erros` os descreve)."},
         400: {"model": RespostaErro, "description": "Corpo ausente, não é JSON ou não é um objeto JSON."},
         413: {"model": RespostaErro, "description": "Código acima do limite de caracteres."},
         422: {"model": RespostaErro, "description": "Campo `codigo` ausente, de tipo inválido, vazio ou só com espaços."},
@@ -47,7 +49,7 @@ def resposta_erro(status: int, codigo: str, mensagem: str, detalhes=None) -> JSO
     },
 )
 def receber_codigo(entrada: EntradaCodigo):
-    """Valida a entrada e a devolve com estatísticas. Não executa nem analisa o programa."""
+    """Valida a entrada, executa a análise léxica e devolve tokens e erros. Não executa o programa."""
     validar_entrada(entrada.codigo)
     return processar(entrada.codigo)
 

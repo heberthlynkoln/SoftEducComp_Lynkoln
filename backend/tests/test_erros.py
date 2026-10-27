@@ -95,6 +95,9 @@ def test_falha_interna_gera_500_padronizado(client_tolerante, monkeypatch):
 
 # ---- texto que não pode ser codificado (JSON aceita surrogates isolados) ----
 def test_surrogate_isolado_e_422_e_nao_500(client_tolerante):
-    r = client_tolerante.post("/api/analisar", json={"codigo": "x = \ud800"})
+    # O corpo é enviado como texto: o httpx não consegue codificar surrogates em UTF-8 no cliente.
+    # A sequência de escape \ud800 dentro do JSON chega ao servidor como surrogate isolado.
+    corpo = '{"codigo": "x = \\ud800"}'
+    r = client_tolerante.post("/api/analisar", content=corpo, headers={"content-type": "application/json"})
     d = checar_erro(r, 422, "CODIGO_INVALIDO")
     assert d["erro"]["detalhes"][0]["campo"] == "codigo"

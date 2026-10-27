@@ -2,7 +2,8 @@
 // Concentra o acesso HTTP para que app.js só se preocupe em exibir resultados.
 //
 // enviarCodigo(codigo) sempre RESOLVE (nunca lança) com um destes objetos:
-//   { tipo: 'sucesso',   dados }                  HTTP 200 no formato do contrato
+//   { tipo: 'sucesso',   dados }                  HTTP 200 no formato do contrato (inclui tokens e erros léxicos;
+//                                                 `dados.sucesso` é false quando há erros léxicos)
 //   { tipo: 'rejeitado', status, erro }           erro no formato padrão (400, 413, 422...)
 //   { tipo: 'falha',     motivo, status? }        motivo: 'rede' | 'tempo' | 'http' | 'resposta-invalida'
 (function () {
@@ -11,10 +12,18 @@
 
   const ehObjeto = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
+  const ehToken = (t) => ehObjeto(t) && typeof t.tipo === 'string' && typeof t.lexema === 'string' &&
+    Number.isInteger(t.linha) && Number.isInteger(t.coluna);
+  const ehErroLexico = (e) => ehToken(e) && typeof e.mensagem === 'string';
+
   function respostaSucessoValida(d) {
     return ehObjeto(d) && d.recebido === true && typeof d.mensagem === 'string' &&
       typeof d.codigo === 'string' && ehObjeto(d.estatisticas) &&
-      ['linhas', 'caracteres', 'bytes'].every((k) => Number.isInteger(d.estatisticas[k]));
+      ['linhas', 'caracteres', 'bytes'].every((k) => Number.isInteger(d.estatisticas[k])) &&
+      typeof d.sucesso === 'boolean' &&
+      Array.isArray(d.tokens) && d.tokens.every(ehToken) &&
+      Array.isArray(d.erros) && d.erros.every(ehErroLexico) &&
+      d.sucesso === (d.erros.length === 0);   // sucesso só quando não há erros léxicos
   }
 
   function erroPadronizado(d) {
