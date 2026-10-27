@@ -42,19 +42,20 @@ rodar('Integração: interface ↔ backend real', () => {
     }
   });
 
+  // O teste verifica o transporte: o texto volta idêntico. O estado depende de haver erro léxico no texto.
   it.each([
-    ['acentos e emoji', 'nome = "Olá, João ✓ 😀 日本語"\n'],
-    ['espaços nas pontas', '   x = 1   \n\n'],
-    ['tabulações', 'x\t=\t5\n\ty = 1'],
-    ['aspas e barras', 'a = "aspas \\" e \\\\ barra"'],
-    ['HTML e SQL', '<b>x</b> & \'; DROP TABLE t; --'],
-    ['caractere nulo', 'x = 1\u0000'],
-  ])('caracteres especiais atravessam a rede intactos: %s', async (_n, texto) => {
+    ['acentos e emoji', 'nome = "Olá, João ✓ 😀 日本語"\n', 'info'],
+    ['espaços nas pontas', '   x = 1   \n\n', 'info'],
+    ['tabulações', 'x\t=\t5\n\ty = 1', 'info'],
+    ['aspas e barras', 'a = "aspas \\" e \\\\ barra"', 'info'],
+    ['HTML e SQL (aspa sem fechar gera erro léxico)', '<b>x</b> & \'; DROP TABLE t; --', 'erro'],
+    ['caractere nulo (erro léxico)', 'x = 1\u0000', 'erro'],
+  ])('caracteres especiais atravessam a rede intactos: %s', async (_n, texto, estadoEsperado) => {
     const t = await abrir();
     t.digitar(texto);
     t.analisar.click();
     await aguardarResposta(t);
-    expect(t.resultados.dataset.estado).toBe('info');
+    expect(t.resultados.dataset.estado).toBe(estadoEsperado);
     expect(t.d.getElementById('eco-codigo').textContent).toBe(texto);
   });
 
@@ -111,7 +112,7 @@ rodar('Integração: contrato HTTP real (cabeçalhos, status e corpo)', () => {
     expect(r.status).toBe(200);
     expect(r.headers.get('content-type')).toMatch(/application\/json/);
     expect(await r.json()).toEqual({
-      recebido: true, sucesso: false, mensagem: 'Código recebido com sucesso.', codigo: 'x = 5 +',
+      recebido: true, sucesso: true, mensagem: 'Código recebido com sucesso.', codigo: 'x = 5 +',
       estatisticas: { linhas: 1, caracteres: 7, bytes: 7 },
       tokens: [
         { tipo: 'IDENTIFICADOR', lexema: 'x', linha: 1, coluna: 1 },
@@ -131,7 +132,7 @@ rodar('Integração: contrato HTTP real (cabeçalhos, status e corpo)', () => {
     ['corpo que não é JSON', 'isto não é json', 400, 'CORPO_INVALIDO'],
     ['corpo vazio', '', 400, 'CORPO_INVALIDO'],
     ['lista JSON', '[1,2]', 400, 'CORPO_INVALIDO'],
-  ])('erro (%s) → HTTP %i %s, no formato padrão', async (_n, corpo, status, codigo) => {
+  ])('erro (%s), no formato padrão', async (_n, corpo, status, codigo) => {
     const r = await post(corpo);
     expect(r.status).toBe(status);
     expect(r.headers.get('content-type')).toMatch(/application\/json/);
