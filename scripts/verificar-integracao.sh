@@ -21,6 +21,8 @@ checar() {  # descrição, status esperado, trecho esperado no corpo, método, c
 checar "health"                        200 '"status":"ok"'            GET  /api/health
 checar "código válido"                 200 '"recebido":true'          POST /api/analisar '{"codigo":"x = 5\n"}'
 checar "código com erro é aceito"      200 '"recebido":true'          POST /api/analisar '{"codigo":"x = 5 +"}'
+checar "tokens na resposta"            200 '"tokens":'               POST /api/analisar '{"codigo":"x = 5"}'
+checar "erro léxico: 200 com sucesso false" 200 '"sucesso":false'  POST /api/analisar '{"codigo":"x = 1 @ 2"}'
 checar "texto vazio"                   422 'CODIGO_VAZIO'             POST /api/analisar '{"codigo":""}'
 checar "só espaços"                    422 'CODIGO_APENAS_ESPACOS'    POST /api/analisar '{"codigo":"  \n "}'
 checar "campo ausente"                 422 'CAMPO_OBRIGATORIO'        POST /api/analisar '{}'

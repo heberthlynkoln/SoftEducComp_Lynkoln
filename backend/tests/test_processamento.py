@@ -43,3 +43,16 @@ def test_validar_entrada_rejeita_surrogates_isolados(texto):
 @pytest.mark.parametrize("texto", ["x = \"á😀\"", "π = 3", "\u00a0x = 1"])
 def test_validar_entrada_aceita_unicode_valido(texto):
     assert validar_entrada(texto) is None
+
+
+def test_processar_devolve_tokens_e_sucesso_quando_nao_ha_erros_lexicos():
+    r = processar("x = 5\n")
+    assert r["sucesso"] is True and r["erros"] == []
+    assert [t["lexema"] for t in r["tokens"]] == ["x", "=", "5", "\n"]
+
+
+def test_processar_devolve_erros_lexicos_sem_interromper():
+    r = processar("x = 5 @\n")
+    assert r["sucesso"] is False
+    assert [e["lexema"] for e in r["erros"]] == ["@"]
+    assert [t["lexema"] for t in r["tokens"]] == ["x", "=", "5", "\n"]

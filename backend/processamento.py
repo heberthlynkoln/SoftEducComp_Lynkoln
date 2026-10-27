@@ -1,10 +1,12 @@
 """Validações iniciais e processamento do código recebido.
 
-Esta é a camada que as próximas etapas vão estender: `processar` hoje apenas
-descreve a entrada; depois chamará o analisador léxico, o parser etc.
+Esta é a camada que as próximas etapas vão estender: `processar` executa a
+análise léxica (scanner.py) e devolve tokens e erros; o parser entrará na Etapa 4.
 Nada aqui executa o código informado.
 """
 import re
+
+from scanner import analisar_lexico
 
 # Limite de tamanho aceito (a interface aplica o mesmo limite ao campo de texto).
 LIMITE_CARACTERES = 100_000
@@ -60,9 +62,15 @@ def contar_linhas(texto: str) -> int:
 
 
 def processar(codigo: str) -> dict:
-    """Ponto de extensão: nas próximas etapas, chamará o léxico e o parser."""
+    """Recebe o código, executa a análise léxica e monta a resposta de sucesso.
+
+    `sucesso` indica apenas a análise léxica: um código sem erros de tokens é
+    considerado lexicamente válido, mesmo que a sintaxe ainda não tenha sido verificada.
+    """
+    tokens, erros = analisar_lexico(codigo)
     return {
         "recebido": True,
+        "sucesso": not erros,
         "mensagem": MENSAGEM_SUCESSO,
         "codigo": codigo,  # devolvido sem alteração, para conferência pela interface
         "estatisticas": {
@@ -70,4 +78,6 @@ def processar(codigo: str) -> dict:
             "caracteres": len(codigo),
             "bytes": len(codigo.encode("utf-8")),
         },
+        "tokens": tokens,
+        "erros": erros,
     }

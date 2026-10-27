@@ -50,15 +50,16 @@
         <summary>O que este analisador aceita?</summary>
         <p>Comandos de atribuição no formato <code>identificador = expressão</code>, com identificadores,
            números, textos entre aspas, operadores <code>+ - * /</code> e parênteses. Estruturas como
-           <code>if</code>, <code>while</code>, funções, listas e <code>import</code> estão fora do escopo.</p>
+           <code>if</code>, <code>while</code>, funções, listas e <code>import</code> estão fora do escopo do
+           parser. O analisador léxico já reconhece palavras reservadas do Python, comentários com <code>#</code>
+           e mais operadores; veja <code>docs/ANALISE-LEXICA.md</code> no repositório.</p>
       </details>
     </section>
 
     <section class="cartao" aria-labelledby="titulo-resultados">
       <h2 id="titulo-resultados">2. Resultados</h2>
       <div id="resultados" class="resultados" aria-live="polite" data-estado="inicial">
-        <p class="vazio">Os resultados da análise aparecerão aqui: mensagens de validação, erros
-           sintáticos (com posição e tokens esperados) e, nas próximas etapas, a árvore sintática.</p>
+        <p class="vazio">Os resultados aparecerão aqui: os tokens identificados, com categoria, lexema e posição, e os erros léxicos, com a localização de cada um.</p>
       </div>
     </section>
   </main>

@@ -111,8 +111,15 @@ rodar('Integração: contrato HTTP real (cabeçalhos, status e corpo)', () => {
     expect(r.status).toBe(200);
     expect(r.headers.get('content-type')).toMatch(/application\/json/);
     expect(await r.json()).toEqual({
-      recebido: true, mensagem: 'Código recebido com sucesso.', codigo: 'x = 5 +',
+      recebido: true, sucesso: false, mensagem: 'Código recebido com sucesso.', codigo: 'x = 5 +',
       estatisticas: { linhas: 1, caracteres: 7, bytes: 7 },
+      tokens: [
+        { tipo: 'IDENTIFICADOR', lexema: 'x', linha: 1, coluna: 1 },
+        { tipo: 'OPERADOR', lexema: '=', linha: 1, coluna: 3 },
+        { tipo: 'LITERAL_INTEIRO', lexema: '5', linha: 1, coluna: 5 },
+        { tipo: 'OPERADOR', lexema: '+', linha: 1, coluna: 7 },
+      ],
+      erros: [],
     });
   });
 
@@ -147,5 +154,39 @@ rodar('Integração: contrato HTTP real (cabeçalhos, status e corpo)', () => {
   it('rotas anteriores continuam disponíveis', async () => {
     expect(await (await fetch(URL_BACKEND + '/api/health')).json()).toEqual({ status: 'ok' });
     expect(await (await fetch(URL_BACKEND + '/api/hello')).json()).toEqual({ message: 'Hello, World!' });
+  });
+});
+
+rodar('Integração: análise léxica no backend real', () => {
+  it('código válido: sucesso true, tokens com posição e nenhum erro', async () => {
+    const r = await post(JSON.stringify({ codigo: 'numero = 10\n' }));
+    const d = await r.json();
+    expect(d.sucesso).toBe(true);
+    expect(d.erros).toEqual([]);
+    expect(d.tokens.map((t) => [t.tipo, t.lexema, t.linha, t.coluna])).toEqual([
+      ['IDENTIFICADOR', 'numero', 1, 1], ['OPERADOR', '=', 1, 8],
+      ['LITERAL_INTEIRO', '10', 1, 10], ['QUEBRA_DE_LINHA', '\n', 1, 12],
+    ]);
+  });
+
+  it('erro léxico: HTTP 200 com sucesso false, erro localizado e tokens válidos mantidos', async () => {
+    const r = await post(JSON.stringify({ codigo: 'a = 1 @ 2' }));
+    expect(r.status).toBe(200);
+    const d = await r.json();
+    expect(d.sucesso).toBe(false);
+    expect(d.erros).toEqual([{ tipo: 'ERRO_LEXICO', lexema: '@', linha: 1, coluna: 7, mensagem: "Caractere não reconhecido: '@'" }]);
+    expect(d.tokens.length).toBe(4);
+  });
+
+  it('a interface exibe tokens e o erro léxico vindos do backend real', async () => {
+    const t = await carregar({ fetchImpl: fetchReal(URL_BACKEND) });
+    t.digitar('a = 1 @ 2\n');
+    t.analisar.click();
+    await aguardarResposta(t);
+    expect(t.resultados.dataset.estado).toBe('erro');
+    expect(t.resultados.textContent).toMatch(/Caractere não reconhecido: '@'/);
+    expect(t.d.querySelector('.tabela-tokens')).not.toBeNull();
+    expect(t.d.querySelector('.tok-erro').textContent).toBe('@');
+    expect(t.d.getElementById('eco-codigo').textContent).toBe('a = 1 @ 2\n');
   });
 });

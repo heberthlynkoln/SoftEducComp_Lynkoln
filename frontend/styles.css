@@ -2,12 +2,17 @@
   --bg: #f7f7f5; --cartao: #ffffff; --fg: #1d2b2a; --muted: #5d6b6a; --borda: #d5dcdb;
   --destaque: #1b6b4a; --destaque-fg: #ffffff; --ok: #1b6b4a; --erro: #a12c2c; --info: #1f5f8b;
   --codigo-bg: #fbfbfa;
+  /* cores das categorias de token (contraste AA sobre o fundo claro) */
+  --tok-palavra: #7a2e9e; --tok-ident: #1d2b2a; --tok-numero: #9a5b00; --tok-string: #1b6b4a;
+  --tok-operador: #1f5f8b; --tok-delim: #5d6b6a; --tok-erro: #a12c2c;
 }
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #14201f; --cartao: #1c2b2a; --fg: #e8efee; --muted: #9db0ae; --borda: #35504d;
     --destaque: #6fd1a3; --destaque-fg: #0f1b1a; --ok: #6fd1a3; --erro: #ff8a8a; --info: #8cc6f0;
     --codigo-bg: #121c1b;
+    --tok-palavra: #d19bf0; --tok-ident: #e8efee; --tok-numero: #f0c070; --tok-string: #6fd1a3;
+    --tok-operador: #8cc6f0; --tok-delim: #9db0ae; --tok-erro: #ff8a8a;
   }
 }
 * { box-sizing: border-box; }
@@ -84,3 +89,29 @@ code {
   font-family: ui-monospace, Consolas, Menlo, monospace; font-size: .9rem; white-space: pre;
 }
 button:disabled { opacity: .6; cursor: progress; }
+
+/* ---- Análise léxica: código destacado, tokens e erros ---- */
+.tok-palavra-reservada { color: var(--tok-palavra); font-weight: 700; }
+.tok-identificador     { color: var(--tok-ident); }
+.tok-literal-inteiro,
+.tok-literal-real      { color: var(--tok-numero); }
+.tok-literal-string    { color: var(--tok-string); }
+.tok-operador          { color: var(--tok-operador); font-weight: 600; }
+.tok-delimitador       { color: var(--tok-delim); }
+.tok-quebra-de-linha   { color: var(--muted); }
+.tok-erro {
+  color: var(--tok-erro); text-decoration: underline wavy var(--tok-erro); text-underline-offset: 3px;
+}
+.titulo-secao { margin: 1rem 0 .35rem; font-weight: 700; }
+.tabela-tokens {
+  width: 100%; border-collapse: collapse; margin-top: .4rem; font-size: .9rem;
+  background: var(--cartao); border: 1px solid var(--borda); border-radius: .4rem; overflow: hidden;
+}
+.tabela-tokens th, .tabela-tokens td { text-align: left; padding: .3rem .55rem; border-bottom: 1px solid var(--borda); }
+.tabela-tokens th { background: var(--codigo-bg); color: var(--muted); font-weight: 600; }
+.tabela-tokens td:nth-child(n+3) { font-variant-numeric: tabular-nums; }
+.tabela-tokens td:nth-child(2) { font-family: ui-monospace, Consolas, Menlo, monospace; }
+.tabela-tokens td[class^="tok-"] { font-family: ui-monospace, Consolas, Menlo, monospace; font-weight: 600; }
+.erros-lexicos ol { margin: .3rem 0 0; padding-left: 1.4rem; }
+.erros-lexicos li { margin: .25rem 0; }
+.erros-lexicos code { font-family: ui-monospace, Consolas, Menlo, monospace; }

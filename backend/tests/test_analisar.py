@@ -13,7 +13,7 @@ def test_requisicao_valida_retorna_200_e_json(enviar):
 
 def test_formato_da_resposta_segue_o_contrato(enviar):
     d = enviar("x = 5\ntotal = preco * (qtd + 1)\n").json()
-    assert set(d) == {"recebido", "mensagem", "codigo", "estatisticas"}
+    assert set(d) == {"recebido", "sucesso", "mensagem", "codigo", "estatisticas", "tokens", "erros"}
     assert set(d["estatisticas"]) == {"linhas", "caracteres", "bytes"}
     RespostaRecebimento.model_validate(d)  # também valida os tipos
 

@@ -1,7 +1,7 @@
 // Lógica da interface.
-// Etapa 3: o código informado é guardado, pode ser editado/substituído e é enviado
-// ao backend como texto puro. Nenhuma validação sintática é feita aqui: o código
-// pode conter erros intencionais.
+// Etapa 3 do roteiro (análise léxica): o código é enviado ao backend, que devolve
+// tokens e erros léxicos. A interface mostra o código com os tokens destacados, a
+// tabela de tokens, a contagem por categoria e os erros. Nenhuma análise é feita aqui.
 (function () {
   const LIMITE_CARACTERES = 100000;           // igual ao do backend
   const CHAVE_STORAGE = 'compiladores.codigo'; // onde o código é preservado entre recargas
@@ -96,14 +96,14 @@
   });
 
   // ---- Resultados ----
-  function mostrarResultado(estado, titulo, linhas, textoCodigo) {
+  function mostrarResultado(estado, titulo, linhas, extras = []) {
     resultados.dataset.estado = estado;
     resultados.replaceChildren();
     if (estado === 'inicial') {
       const p = document.createElement('p');
       p.className = 'vazio';
-      p.textContent = 'Os resultados da análise aparecerão aqui: mensagens de validação, erros sintáticos ' +
-        '(com posição e tokens esperados) e, nas próximas etapas, a árvore sintática.';
+      p.textContent = 'Os resultados aparecerão aqui: os tokens identificados, com categoria, lexema e posição, ' +
+        'e os erros léxicos, com a localização de cada um.';
       resultados.appendChild(p);
       resultados.removeAttribute('role');
       return;
@@ -118,17 +118,150 @@
       p.textContent = txt;
       resultados.appendChild(p);
     });
-    if (textoCodigo !== undefined) {
-      const rotulo = document.createElement('p');
-      rotulo.className = 'ajuda';
-      rotulo.textContent = 'Código recebido pelo backend:';
-      const pre = document.createElement('pre');
-      pre.className = 'eco-codigo';
-      pre.id = 'eco-codigo';
-      pre.textContent = textoCodigo;   // textContent: nunca interpreta HTML
-      resultados.append(rotulo, pre);
-    }
+    resultados.append(...extras);
   }
+
+  // ---- Análise léxica: apresentação didática ----
+  // Rótulo de cada categoria de token (mesmos nomes enviados pelo backend).
+  const CATEGORIAS = {
+    PALAVRA_RESERVADA: 'palavra reservada',
+    IDENTIFICADOR: 'identificador',
+    LITERAL_INTEIRO: 'número inteiro',
+    LITERAL_REAL: 'número real',
+    LITERAL_STRING: 'texto (string)',
+    OPERADOR: 'operador',
+    DELIMITADOR: 'delimitador',
+    QUEBRA_DE_LINHA: 'quebra de linha',
+  };
+  const classeDoTipo = (tipo) => 'tok-' + tipo.toLowerCase().replace(/_/g, '-');
+  // Mostra caracteres invisíveis como escapes (\n, \t), como aparecem em código.
+  const escaparParaExibir = (s) => JSON.stringify(s).slice(1, -1);
+  const paragrafo = (texto, classe) => {
+    const p = document.createElement('p');
+    if (classe) p.className = classe;
+    p.textContent = texto;
+    return p;
+  };
+
+  // Índice (em pontos de código) do início de cada linha: mesma regra do backend.
+  function inicioDasLinhas(pontos) {
+    const inicios = [0];
+    for (let i = 0; i < pontos.length; i++) {
+      if (pontos[i] === '\r' && pontos[i + 1] === '\n') { i++; inicios.push(i + 1); }
+      else if (pontos[i] === '\r' || pontos[i] === '\n') inicios.push(i + 1);
+    }
+    return inicios;
+  }
+
+  // Monta o código com cada token em um <span> da sua categoria. O texto visível é
+  // sempre idêntico ao original: trechos sem marca são mantidos como estão.
+  function destacarCodigo(texto, tokens, erros) {
+    const pontos = Array.from(texto);
+    const inicios = inicioDasLinhas(pontos);
+    const marcas = [];
+    const marcar = (item, classe) => {
+      const inicioDaLinha = inicios[item.linha - 1];
+      if (inicioDaLinha === undefined) return;
+      const inicio = inicioDaLinha + item.coluna - 1;
+      marcas.push({ inicio, fim: inicio + Array.from(item.lexema).length, classe });
+    };
+    tokens.forEach((t) => { if (t.tipo !== 'QUEBRA_DE_LINHA') marcar(t, classeDoTipo(t.tipo)); });
+    erros.forEach((e) => marcar(e, 'tok-erro'));
+    marcas.sort((a, b) => a.inicio - b.inicio);
+
+    const fragmento = document.createDocumentFragment();
+    let cursor = 0;
+    marcas.forEach((m) => {
+      if (m.inicio < cursor || m.fim > pontos.length) return;   // nunca sobrepõe nem sai do texto
+      if (m.inicio > cursor) fragmento.append(pontos.slice(cursor, m.inicio).join(''));
+      const span = document.createElement('span');
+      span.className = m.classe;
+      span.textContent = pontos.slice(m.inicio, m.fim).join('');
+      fragmento.append(span);
+      cursor = m.fim;
+    });
+    if (cursor < pontos.length) fragmento.append(pontos.slice(cursor).join(''));
+    return fragmento;
+  }
+
+  function montarEcoCodigo(texto, tokens, erros, integro) {
+    const rotulo = paragrafo(integro
+      ? 'Código recebido pelo backend, com os tokens destacados por categoria:'
+      : 'Código recebido pelo backend:', 'ajuda');
+    const pre = document.createElement('pre');
+    pre.className = 'eco-codigo';
+    pre.id = 'eco-codigo';
+    // Só destaca quando o eco é fiel ao enviado; caso contrário, o texto aparece sem marcações.
+    pre.append(integro ? destacarCodigo(texto, tokens, erros) : texto);
+    return [rotulo, pre];
+  }
+
+  function montarLegenda() {
+    const p = paragrafo('Cores: ', 'ajuda');
+    Object.keys(CATEGORIAS).forEach((tipo, i) => {
+      const span = document.createElement('span');
+      span.className = classeDoTipo(tipo);
+      span.textContent = CATEGORIAS[tipo];
+      p.append(i ? ' · ' : '', span);
+    });
+    return p;
+  }
+
+  function montarContagem(tokens) {
+    const total = {};
+    tokens.forEach((t) => { total[t.tipo] = (total[t.tipo] || 0) + 1; });
+    const partes = Object.keys(CATEGORIAS).filter((tipo) => total[tipo])
+      .map((tipo) => `${CATEGORIAS[tipo]}: ${total[tipo]}`);
+    return paragrafo(partes.length
+      ? `Contagem por categoria: ${partes.join(' · ')}`
+      : 'Nenhum token foi identificado.', 'ajuda');
+  }
+
+  function montarTabelaTokens(tokens) {
+    const tabela = document.createElement('table');
+    tabela.className = 'tabela-tokens';
+    const cabeca = tabela.createTHead().insertRow();
+    ['Tipo', 'Lexema', 'Linha', 'Coluna'].forEach((titulo) => {
+      const th = document.createElement('th');
+      th.scope = 'col';
+      th.textContent = titulo;
+      cabeca.append(th);
+    });
+    const corpo = tabela.createTBody();
+    tokens.forEach((t) => {
+      const linha = corpo.insertRow();
+      const celulaTipo = linha.insertCell();
+      celulaTipo.className = classeDoTipo(t.tipo);
+      celulaTipo.textContent = t.tipo;
+      linha.insertCell().textContent = escaparParaExibir(t.lexema);
+      linha.insertCell().textContent = String(t.linha);
+      linha.insertCell().textContent = String(t.coluna);
+    });
+    return tabela;
+  }
+
+  function montarErrosLexicos(erros) {
+    const bloco = document.createElement('div');
+    bloco.className = 'erros-lexicos';
+    bloco.append(paragrafo(`Erros léxicos (${erros.length})`, 'titulo-secao'));
+    const lista = document.createElement('ol');
+    erros.forEach((e) => {
+      const item = document.createElement('li');
+      item.append(`Linha ${e.linha}, coluna ${e.coluna}: ${e.mensagem}. Trecho: `);
+      const trecho = document.createElement('code');
+      trecho.textContent = escaparParaExibir(e.lexema);
+      item.append(trecho);
+      lista.append(item);
+    });
+    bloco.append(lista, paragrafo('Verifique se o trecho faz parte do subconjunto suportado ' +
+      '(veja "O que este analisador aceita?"). A análise continuou e os demais tokens foram listados.', 'ajuda'));
+    return bloco;
+  }
+
+  const TEXTO_EXPLICATIVO = 'Como ler o resultado: o analisador percorre o código caractere a caractere e agrupa ' +
+    'os caracteres em lexemas. Cada lexema vira um token, com uma categoria e uma posição (linha e coluna). ' +
+    'Lexema é o trecho exato do código; token é a classificação desse trecho. Por exemplo, em "numero = 10", ' +
+    'o lexema "numero" gera um token IDENTIFICADOR na coluna 1.';
 
   // ---- Envio ao backend ----
   let envioAtual = 0; // identifica o envio mais recente; respostas antigas são descartadas
@@ -174,16 +307,31 @@
     if (r.tipo === 'sucesso') {
       const d = r.dados;
       const integro = d.codigo === texto;
+      const comErros = d.erros.length > 0;
+      let titulo = d.mensagem;
+      let resumoLexico = `Análise léxica concluída: ${d.tokens.length} tokens identificados, nenhum erro.`;
+      if (!integro) {
+        titulo = 'Código recebido com divergência';
+        resumoLexico = 'O texto devolvido pelo backend difere do enviado; a análise não é exibida.';
+      } else if (comErros) {
+        titulo = 'A análise léxica encontrou erros';
+        resumoLexico = `Análise léxica concluída com ${d.erros.length} erro(s). Os demais tokens foram listados abaixo.`;
+      }
+      const extras = [paragrafo(TEXTO_EXPLICATIVO, 'ajuda')];
+      if (integro && comErros) extras.push(montarErrosLexicos(d.erros));
+      extras.push(...montarEcoCodigo(d.codigo, d.tokens, d.erros, integro));
+      if (integro) {
+        extras.push(montarLegenda(), montarContagem(d.tokens));
+        extras.push(d.tokens.length
+          ? montarTabelaTokens(d.tokens)
+          : paragrafo('Nenhum token: o código não tem conteúdo além de espaços e comentários.', 'ajuda'));
+      }
       mostrarResultado(
-        integro ? 'info' : 'erro',
-        integro ? d.mensagem : 'Código recebido com divergência',
-        [
-          `${rotuloLinhas(d.estatisticas.linhas)}, ${d.estatisticas.caracteres} caracteres (${d.estatisticas.bytes} bytes).`,
-          integro
-            ? 'O backend recebeu o texto exatamente como foi informado. A análise léxica e sintática será adicionada nas próximas etapas.'
-            : 'O texto devolvido pelo backend difere do enviado.',
-        ],
-        d.codigo);
+        integro && !comErros ? 'info' : 'erro',
+        titulo,
+        [`${rotuloLinhas(d.estatisticas.linhas)}, ${d.estatisticas.caracteres} caracteres (${d.estatisticas.bytes} bytes).`,
+          resumoLexico],
+        extras);
     } else if (r.tipo === 'rejeitado') {
       // O backend respondeu, mas recusou a entrada: mostramos a mensagem dele.
       const detalhes = (r.erro.detalhes || []).map((x) => x.problema).filter((p) => p !== r.erro.mensagem);
