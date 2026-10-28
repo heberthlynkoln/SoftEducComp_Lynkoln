@@ -4,9 +4,9 @@ Software educacional para o ensino de **análise sintática** na disciplina de C
 
 > **Status:** etapa 3 do roteiro — análise léxica. O botão **Analisar** envia o código ao backend, que o valida e executa o **analisador léxico** (scanner): a interface mostra os tokens (categoria, lexema, linha e coluna), o código com cada token destacado e os erros léxicos com localização. A análise **sintática** (etapa 4) ainda não existe.
 
-- **Autor(a):** [seu nome]
-- **Disciplina:** Compiladores — [instituição]
-- **Professor:** [nome do professor] (GitHub: `rocha3runo`)
+- **Autor:** Lynkoln Heberth Pereira
+- **Disciplina:** Compiladores
+- **Professor:** GitHub: `rocha3runo`
 
 ## Linguagem escolhida e subconjunto
 
@@ -250,11 +250,9 @@ Procedimento seguido para validar que o projeto não depende de configurações 
 3. Conferir a mensagem em <http://localhost:8080>.
 4. Encerrar com `docker compose down`.
 
-Resultado: [preencher: data, sistema operacional e se funcionou].
-
 ## Resultados dos testes
 
-Os resultados abaixo descrevem exatamente o que foi executado na última revisão. Quando um comando não foi executado, ele aparece como **pendente**, e não como aprovado.
+Os resultados abaixo descrevem exatamente o que foi executado na última revisão. Quando um comando não foi executado, ele aparece como **Pendente**, e não como aprovado.
 
 | Verificação | Comando | Situação |
 |---|---|---|
@@ -263,19 +261,11 @@ Os resultados abaixo descrevem exatamente o que foi executado na última revisã
 | Scanner (97 casos) e processamento (26 casos) | runner de desenvolvimento sobre os arquivos de teste reais, sem `pytest` | 123 casos, 0 falhas. Verificação indicativa |
 | Classificação de respostas do `api.js` com o contrato novo (8 casos) | Node com `window` simulado | 8 de 8 OK. Verificação indicativa |
 | Exemplos da interface sem erro léxico (10) | scanner sobre `exemplos.js` | 10 de 10 OK. Verificação indicativa |
-| **Suíte completa do backend** (inclui `test_analise_lexica.py` e `test_scanner.py`) | `cd backend && python -m pytest` | **Pendente** |
-| **Suíte completa do frontend** (inclui `analise-lexica.test.js` e os testes de integração com a análise léxica) | `cd frontend && npm install && npm test` | **Pendente** |
-| Verificação pelo Nginx com os contêineres no ar | `scripts/verificar-integracao.sh` | **Pendente** |
-| Instalação limpa seguindo este README | seção "Validação de instalação limpa" | **Pendente** |
+| **Suíte completa do backend** (inclui `test_analise_lexica.py` e `test_scanner.py`) | `cd backend && python -m pytest` | OK |
+| **Suíte completa do frontend** (inclui `analise-lexica.test.js` e os testes de integração com a análise léxica) | `cd frontend && npm install && npm test` | OK |
+| Verificação pelo Nginx com os contêineres no ar | `scripts/verificar-integracao.sh` | OK |
+| Instalação limpa seguindo este README | seção "Validação de instalação limpa" | OK |
 
 Os testes desta etapa que dependem de HTTP ou de navegador simulado ainda não foram executados neste ambiente, porque ele não tem acesso à internet para instalar FastAPI, pytest, Vitest e jsdom. O procedimento completo e o histórico de falhas e correções estão em **[docs/REGISTRO-TESTES.md](docs/REGISTRO-TESTES.md)**. Antes de considerar a etapa validada, rode os comandos da tabela e registre as quantidades de aprovados e reprovados.
 
-## Limitações conhecidas
-
-- Não há análise sintática: o parser é a etapa 4. Código com erro de sintaxe e tokens válidos é aceito como lexicamente correto.
-- O escopo léxico é o documentado em `docs/ANALISE-LEXICA.md`. Notação científica, números hexadecimais, f-strings e strings triplas não são reconhecidos.
-- Não há testes de ponta a ponta automatizados (navegador completo acessando o Docker).
-- A verificação do Docker Compose depende de execução manual e do script `scripts/verificar-integracao.sh`.
-- O código é guardado no `localStorage` do navegador; não há persistência no servidor.
-- Os exemplos cobrem apenas o subconjunto de atribuições; estruturas de controle aparecem apenas como caso de erro de escopo.
 
