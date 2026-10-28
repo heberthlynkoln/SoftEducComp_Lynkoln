@@ -15,7 +15,7 @@ def test_contagem_de_linhas(texto, esperado):
 @pytest.mark.parametrize("texto,codigo,status", [
     ("", "CODIGO_VAZIO", 422),
     (" \n\t", "CODIGO_APENAS_ESPACOS", 422),
-    ("a" * 100_001, "CODIGO_MUITO_LONGO", 413),
+    pytest.param("a" * 100_001, "CODIGO_MUITO_LONGO", 413, id="codigo_muito_longo"),
 ])
 def test_validar_entrada_rejeita(texto, codigo, status):
     with pytest.raises(EntradaRejeitada) as exc:
