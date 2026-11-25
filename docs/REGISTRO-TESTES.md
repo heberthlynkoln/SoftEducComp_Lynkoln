@@ -24,7 +24,7 @@ A falha da linha de base era **do próprio teste**: o cliente de teste não cons
 | **Suíte do backend** | `cd backend && python -m pytest` | **247 aprovados, 0 reprovados, 0 ignorados** |
 | **Suíte do frontend** | `cd frontend && npm install && npm test` | **229 aprovados, 0 reprovados, 0 ignorados** (os 28 testes de integração rodaram com o backend real) |
 | Script de integração | `scripts/verificar-integracao.sh` | 17 de 17 OK, mas **contra um servidor substituto** (uvicorn + proxy Python que reproduz o `location /api/` do Nginx), e não contra os contêineres |
-| Docker Compose | `docker compose up --build` | **Pendente**: no ambiente usado, o acesso ao Docker Hub estava bloqueado (`python:3.12-slim` não pôde ser baixada). Não há dependências novas; o único ajuste nos Dockerfiles é a inclusão de `analise.js` no `COPY` do frontend |
+| Docker Compose | docker compose up --build | OK em 25/11/2026 (Windows, Docker Desktop): interface em localhost:8080, árvore e erros exibidos |
 | Instalação limpa | seção "Como executar" do README | **Pendente** |
 | Teste em celular (C12) | roteiro de Materiais e Métodos | **Pendente** em aparelho real. Feita apenas a simulação em largura de 390 px no Chrome (ver abaixo) |
 
