@@ -3,11 +3,15 @@
 Contrato completo em docs/API.md. Organização:
   main.py          rotas e tratamento padronizado de erros
   schemas.py       modelos de entrada, saída e erro
-  processamento.py validações iniciais e orquestração da análise
-  scanner.py       analisador léxico (tokens e erros léxicos)
+  processamento.py validações e orquestração (scanner -> parser)
+  scanner.py       análise léxica
+  gramatica.py     gramática LL(1), FIRST, FOLLOW e tabela M
+  parser.py        análise sintática preditiva e construção da AST
+  arvore.py        nós da AST e serialização
 
-Etapa 3 do roteiro: a API valida o código e executa a análise léxica. A análise
-sintática (Etapa 4) e a semântica ainda não existem.
+A API recebe o código como texto, valida, executa a análise léxica e a sintática
+e devolve tokens, AST e erros. O código nunca é executado. A análise semântica
+será feita na Etapa 5.
 """
 import logging
 
@@ -16,6 +20,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+import gramatica
 from processamento import EntradaRejeitada, processar, validar_entrada
 from schemas import EntradaCodigo, RespostaErro, RespostaRecebimento
 
@@ -23,7 +28,7 @@ logger = logging.getLogger("api")
 
 app = FastAPI(
     title="Visualizador de Análise Sintática - API",
-    description="Recebe código Python (subconjunto de atribuições), executa a análise léxica e devolve tokens e erros.",
+    description="Recebe código Python (subconjunto de atribuições) e devolve respostas estruturadas.",
     docs_url="/api/docs",        # acessível também pelo Nginx em http://localhost:8080/api/docs
     openapi_url="/api/openapi.json",
     redoc_url=None,
@@ -39,9 +44,8 @@ def resposta_erro(status: int, codigo: str, mensagem: str, detalhes=None) -> JSO
 @app.post(
     "/api/analisar",
     response_model=RespostaRecebimento,
-    summary="Recebe o código-fonte e executa a análise léxica",
+    summary="Analisa o código-fonte (léxico e sintático)",
     responses={
-        200: {"description": "Código recebido. `sucesso` é false quando há erros léxicos (a lista `erros` os descreve)."},
         400: {"model": RespostaErro, "description": "Corpo ausente, não é JSON ou não é um objeto JSON."},
         413: {"model": RespostaErro, "description": "Código acima do limite de caracteres."},
         422: {"model": RespostaErro, "description": "Campo `codigo` ausente, de tipo inválido, vazio ou só com espaços."},
@@ -49,9 +53,15 @@ def resposta_erro(status: int, codigo: str, mensagem: str, detalhes=None) -> JSO
     },
 )
 def receber_codigo(entrada: EntradaCodigo):
-    """Valida a entrada, executa a análise léxica e devolve tokens e erros. Não executa o programa."""
+    """Valida a entrada, executa o scanner e o parser e devolve tokens, AST e erros. Não executa o programa."""
     validar_entrada(entrada.codigo)
     return processar(entrada.codigo)
+
+
+@app.get("/api/gramatica", summary="Gramática, conjuntos FIRST/FOLLOW e tabela M")
+def obter_gramatica():
+    """Descrição da gramática LL(1) usada pelo parser, calculada a partir das produções."""
+    return gramatica.descrever()
 
 
 @app.get("/api/hello")

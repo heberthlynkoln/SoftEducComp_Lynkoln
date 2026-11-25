@@ -1,11 +1,12 @@
-"""Validações iniciais e processamento do código recebido.
+"""Validações iniciais e orquestração das análises.
 
-Esta é a camada que as próximas etapas vão estender: `processar` executa a
-análise léxica (scanner.py) e devolve tokens e erros; o parser entrará na Etapa 4.
-Nada aqui executa o código informado.
+Fluxo de `processar`: scanner (análise léxica) -> se não houver erro léxico,
+parser LL(1) (análise sintática) e construção da AST. A análise semântica
+(Etapa 5) entrará aqui, depois do parser. Nada aqui executa o código informado.
 """
 import re
 
+from parser import analisar_sintatico
 from scanner import analisar_lexico
 
 # Limite de tamanho aceito (a interface aplica o mesmo limite ao campo de texto).
@@ -61,16 +62,25 @@ def contar_linhas(texto: str) -> int:
     return len(re.split(r"\r\n|\r|\n", sem_final))
 
 
-def processar(codigo: str) -> dict:
-    """Recebe o código, executa a análise léxica e monta a resposta de sucesso.
+MOTIVO_PARSER_NAO_EXECUTADO = (
+    "A análise sintática não foi executada porque há erros léxicos. Corrija-os primeiro: "
+    "com tokens inválidos, o parser produziria erros que não existem no código original."
+)
 
-    `sucesso` indica apenas a análise léxica: um código sem erros de tokens é
-    considerado lexicamente válido, mesmo que a sintaxe ainda não tenha sido verificada.
-    """
-    tokens, erros = analisar_lexico(codigo)
+
+def sintatico_nao_executado() -> dict:
+    """Decisão D1: com erro léxico, o parser não roda (docs/gramatica.md)."""
+    return {"executado": False, "sucesso": False, "ast": None, "arvore_parcial": [], "erros": [], "avisos": [],
+            "motivo": MOTIVO_PARSER_NAO_EXECUTADO, "estatisticas": None,
+            "passos": [], "passos_truncados": False, "total_passos": 0}
+
+
+def processar(codigo: str) -> dict:
+    """Valida, executa o scanner e, se não houver erro léxico, o parser."""
+    lexico = analisar_lexico(codigo)
+    sintatico = analisar_sintatico(lexico["tokens"], codigo) if lexico["sucesso"] else sintatico_nao_executado()
     return {
         "recebido": True,
-        "sucesso": not erros,
         "mensagem": MENSAGEM_SUCESSO,
         "codigo": codigo,  # devolvido sem alteração, para conferência pela interface
         "estatisticas": {
@@ -78,6 +88,7 @@ def processar(codigo: str) -> dict:
             "caracteres": len(codigo),
             "bytes": len(codigo.encode("utf-8")),
         },
-        "tokens": tokens,
-        "erros": erros,
+        "sucesso": lexico["sucesso"] and sintatico["sucesso"],
+        "lexico": lexico,
+        "sintatico": sintatico,
     }

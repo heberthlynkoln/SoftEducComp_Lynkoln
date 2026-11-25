@@ -13,8 +13,13 @@ def test_requisicao_valida_retorna_200_e_json(enviar):
 
 def test_formato_da_resposta_segue_o_contrato(enviar):
     d = enviar("x = 5\ntotal = preco * (qtd + 1)\n").json()
-    assert set(d) == {"recebido", "sucesso", "mensagem", "codigo", "estatisticas", "tokens", "erros"}
+    # Campos das etapas anteriores, preservados (compatibilidade) ...
+    assert {"recebido", "mensagem", "codigo", "estatisticas"} <= set(d)
     assert set(d["estatisticas"]) == {"linhas", "caracteres", "bytes"}
+    # ... mais os campos acrescentados pela análise léxica e sintática (docs/API.md).
+    assert set(d) == {"recebido", "mensagem", "codigo", "estatisticas", "sucesso", "lexico", "sintatico"}
+    assert set(d["lexico"]) == {"sucesso", "tokens", "erros"}
+    assert {"executado", "sucesso", "ast", "erros", "avisos", "passos"} <= set(d["sintatico"])
     RespostaRecebimento.model_validate(d)  # também valida os tipos
 
 

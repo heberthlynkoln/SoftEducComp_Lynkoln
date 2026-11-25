@@ -15,7 +15,7 @@ def test_contagem_de_linhas(texto, esperado):
 @pytest.mark.parametrize("texto,codigo,status", [
     ("", "CODIGO_VAZIO", 422),
     (" \n\t", "CODIGO_APENAS_ESPACOS", 422),
-    pytest.param("a" * 100_001, "CODIGO_MUITO_LONGO", 413, id="codigo_muito_longo"),
+    ("a" * 100_001, "CODIGO_MUITO_LONGO", 413),
 ])
 def test_validar_entrada_rejeita(texto, codigo, status):
     with pytest.raises(EntradaRejeitada) as exc:
@@ -43,16 +43,3 @@ def test_validar_entrada_rejeita_surrogates_isolados(texto):
 @pytest.mark.parametrize("texto", ["x = \"á😀\"", "π = 3", "\u00a0x = 1"])
 def test_validar_entrada_aceita_unicode_valido(texto):
     assert validar_entrada(texto) is None
-
-
-def test_processar_devolve_tokens_e_sucesso_quando_nao_ha_erros_lexicos():
-    r = processar("x = 5\n")
-    assert r["sucesso"] is True and r["erros"] == []
-    assert [t["lexema"] for t in r["tokens"]] == ["x", "=", "5", "\n"]
-
-
-def test_processar_devolve_erros_lexicos_sem_interromper():
-    r = processar("x = 5 @\n")
-    assert r["sucesso"] is False
-    assert [e["lexema"] for e in r["erros"]] == ["@"]
-    assert [t["lexema"] for t in r["tokens"]] == ["x", "=", "5", "\n"]

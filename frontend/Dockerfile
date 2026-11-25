@@ -5,6 +5,6 @@ FROM nginx:1.27-alpine
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Arquivos do frontend (os testes em tests/ não vão para a imagem)
-COPY index.html styles.css exemplos.js api.js app.js /usr/share/nginx/html/
+COPY index.html styles.css exemplos.js api.js analise.js app.js /usr/share/nginx/html/
 
 EXPOSE 80
