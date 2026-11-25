@@ -1,0 +1,3056 @@
+{
+ "recebido": true,
+ "mensagem": "Código recebido com sucesso.",
+ "codigo": "total = 2 + 3 * 4\nmedia = (2 + 3) * 4 / 2 - 1\n",
+ "estatisticas": {
+  "linhas": 2,
+  "caracteres": 46,
+  "bytes": 46
+ },
+ "sucesso": true,
+ "lexico": {
+  "sucesso": true,
+  "tokens": [
+   {
+    "tipo": "IDENTIFICADOR",
+    "lexema": "total",
+    "linha": 1,
+    "coluna": 1
+   },
+   {
+    "tipo": "OPERADOR_ATRIBUICAO",
+    "lexema": "=",
+    "linha": 1,
+    "coluna": 7
+   },
+   {
+    "tipo": "LITERAL_INTEIRO",
+    "lexema": "2",
+    "linha": 1,
+    "coluna": 9
+   },
+   {
+    "tipo": "OPERADOR_ARITMETICO",
+    "lexema": "+",
+    "linha": 1,
+    "coluna": 11
+   },
+   {
+    "tipo": "LITERAL_INTEIRO",
+    "lexema": "3",
+    "linha": 1,
+    "coluna": 13
+   },
+   {
+    "tipo": "OPERADOR_ARITMETICO",
+    "lexema": "*",
+    "linha": 1,
+    "coluna": 15
+   },
+   {
+    "tipo": "LITERAL_INTEIRO",
+    "lexema": "4",
+    "linha": 1,
+    "coluna": 17
+   },
+   {
+    "tipo": "QUEBRA_DE_LINHA",
+    "lexema": "\n",
+    "linha": 1,
+    "coluna": 18
+   },
+   {
+    "tipo": "IDENTIFICADOR",
+    "lexema": "media",
+    "linha": 2,
+    "coluna": 1
+   },
+   {
+    "tipo": "OPERADOR_ATRIBUICAO",
+    "lexema": "=",
+    "linha": 2,
+    "coluna": 7
+   },
+   {
+    "tipo": "DELIMITADOR",
+    "lexema": "(",
+    "linha": 2,
+    "coluna": 9
+   },
+   {
+    "tipo": "LITERAL_INTEIRO",
+    "lexema": "2",
+    "linha": 2,
+    "coluna": 10
+   },
+   {
+    "tipo": "OPERADOR_ARITMETICO",
+    "lexema": "+",
+    "linha": 2,
+    "coluna": 12
+   },
+   {
+    "tipo": "LITERAL_INTEIRO",
+    "lexema": "3",
+    "linha": 2,
+    "coluna": 14
+   },
+   {
+    "tipo": "DELIMITADOR",
+    "lexema": ")",
+    "linha": 2,
+    "coluna": 15
+   },
+   {
+    "tipo": "OPERADOR_ARITMETICO",
+    "lexema": "*",
+    "linha": 2,
+    "coluna": 17
+   },
+   {
+    "tipo": "LITERAL_INTEIRO",
+    "lexema": "4",
+    "linha": 2,
+    "coluna": 19
+   },
+   {
+    "tipo": "OPERADOR_ARITMETICO",
+    "lexema": "/",
+    "linha": 2,
+    "coluna": 21
+   },
+   {
+    "tipo": "LITERAL_INTEIRO",
+    "lexema": "2",
+    "linha": 2,
+    "coluna": 23
+   },
+   {
+    "tipo": "OPERADOR_ARITMETICO",
+    "lexema": "-",
+    "linha": 2,
+    "coluna": 25
+   },
+   {
+    "tipo": "LITERAL_INTEIRO",
+    "lexema": "1",
+    "linha": 2,
+    "coluna": 27
+   },
+   {
+    "tipo": "QUEBRA_DE_LINHA",
+    "lexema": "\n",
+    "linha": 2,
+    "coluna": 28
+   }
+  ],
+  "erros": []
+ },
+ "sintatico": {
+  "executado": true,
+  "sucesso": true,
+  "ast": {
+   "id": "n20",
+   "tipo": "PROGRAMA",
+   "rotulo": "Programa",
+   "linha": 1,
+   "coluna": 1,
+   "linha_fim": 2,
+   "coluna_fim": 27,
+   "regra": "PROGRAMA → LISTA_ATRIB; LISTA_ATRIB → ATRIB LISTA_ATRIB | ε",
+   "atributos": {
+    "quantidade_atribuicoes": 2
+   },
+   "filhos": [
+    {
+     "id": "n7",
+     "tipo": "ATRIBUICAO",
+     "rotulo": "Atribuição",
+     "linha": 1,
+     "coluna": 1,
+     "linha_fim": 1,
+     "coluna_fim": 17,
+     "regra": "ATRIB → identificador = EXPR NOVA_LINHA",
+     "atributos": {
+      "nome": "total"
+     },
+     "filhos": [
+      {
+       "id": "n1",
+       "tipo": "IDENTIFICADOR",
+       "rotulo": "Identificador",
+       "linha": 1,
+       "coluna": 1,
+       "linha_fim": 1,
+       "coluna_fim": 5,
+       "regra": "ATRIB → identificador = EXPR NOVA_LINHA",
+       "atributos": {
+        "nome": "total",
+        "papel": "alvo"
+       },
+       "filhos": []
+      },
+      {
+       "id": "n6",
+       "tipo": "ADICAO",
+       "rotulo": "Adição",
+       "linha": 1,
+       "coluna": 9,
+       "linha_fim": 1,
+       "coluna_fim": 17,
+       "regra": "EXPR' → + TERMO EXPR'",
+       "atributos": {
+        "operador": "+"
+       },
+       "filhos": [
+        {
+         "id": "n2",
+         "tipo": "NUMERO",
+         "rotulo": "Número",
+         "linha": 1,
+         "coluna": 9,
+         "linha_fim": 1,
+         "coluna_fim": 9,
+         "regra": "FATOR → numero",
+         "atributos": {
+          "valor": "2",
+          "tipo_numero": "inteiro"
+         },
+         "filhos": []
+        },
+        {
+         "id": "n5",
+         "tipo": "MULTIPLICACAO",
+         "rotulo": "Multiplicação",
+         "linha": 1,
+         "coluna": 13,
+         "linha_fim": 1,
+         "coluna_fim": 17,
+         "regra": "TERMO' → * FATOR TERMO'",
+         "atributos": {
+          "operador": "*"
+         },
+         "filhos": [
+          {
+           "id": "n3",
+           "tipo": "NUMERO",
+           "rotulo": "Número",
+           "linha": 1,
+           "coluna": 13,
+           "linha_fim": 1,
+           "coluna_fim": 13,
+           "regra": "FATOR → numero",
+           "atributos": {
+            "valor": "3",
+            "tipo_numero": "inteiro"
+           },
+           "filhos": []
+          },
+          {
+           "id": "n4",
+           "tipo": "NUMERO",
+           "rotulo": "Número",
+           "linha": 1,
+           "coluna": 17,
+           "linha_fim": 1,
+           "coluna_fim": 17,
+           "regra": "FATOR → numero",
+           "atributos": {
+            "valor": "4",
+            "tipo_numero": "inteiro"
+           },
+           "filhos": []
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "n19",
+     "tipo": "ATRIBUICAO",
+     "rotulo": "Atribuição",
+     "linha": 2,
+     "coluna": 1,
+     "linha_fim": 2,
+     "coluna_fim": 27,
+     "regra": "ATRIB → identificador = EXPR NOVA_LINHA",
+     "atributos": {
+      "nome": "media"
+     },
+     "filhos": [
+      {
+       "id": "n8",
+       "tipo": "IDENTIFICADOR",
+       "rotulo": "Identificador",
+       "linha": 2,
+       "coluna": 1,
+       "linha_fim": 2,
+       "coluna_fim": 5,
+       "regra": "ATRIB → identificador = EXPR NOVA_LINHA",
+       "atributos": {
+        "nome": "media",
+        "papel": "alvo"
+       },
+       "filhos": []
+      },
+      {
+       "id": "n18",
+       "tipo": "SUBTRACAO",
+       "rotulo": "Subtração",
+       "linha": 2,
+       "coluna": 9,
+       "linha_fim": 2,
+       "coluna_fim": 27,
+       "regra": "EXPR' → - TERMO EXPR'",
+       "atributos": {
+        "operador": "-"
+       },
+       "filhos": [
+        {
+         "id": "n16",
+         "tipo": "DIVISAO",
+         "rotulo": "Divisão",
+         "linha": 2,
+         "coluna": 9,
+         "linha_fim": 2,
+         "coluna_fim": 23,
+         "regra": "TERMO' → / FATOR TERMO'",
+         "atributos": {
+          "operador": "/"
+         },
+         "filhos": [
+          {
+           "id": "n14",
+           "tipo": "MULTIPLICACAO",
+           "rotulo": "Multiplicação",
+           "linha": 2,
+           "coluna": 9,
+           "linha_fim": 2,
+           "coluna_fim": 19,
+           "regra": "TERMO' → * FATOR TERMO'",
+           "atributos": {
+            "operador": "*"
+           },
+           "filhos": [
+            {
+             "id": "n12",
+             "tipo": "AGRUPAMENTO",
+             "rotulo": "Agrupamento (parênteses)",
+             "linha": 2,
+             "coluna": 9,
+             "linha_fim": 2,
+             "coluna_fim": 15,
+             "regra": "FATOR → ( EXPR )",
+             "atributos": {},
+             "filhos": [
+              {
+               "id": "n11",
+               "tipo": "ADICAO",
+               "rotulo": "Adição",
+               "linha": 2,
+               "coluna": 10,
+               "linha_fim": 2,
+               "coluna_fim": 14,
+               "regra": "EXPR' → + TERMO EXPR'",
+               "atributos": {
+                "operador": "+"
+               },
+               "filhos": [
+                {
+                 "id": "n9",
+                 "tipo": "NUMERO",
+                 "rotulo": "Número",
+                 "linha": 2,
+                 "coluna": 10,
+                 "linha_fim": 2,
+                 "coluna_fim": 10,
+                 "regra": "FATOR → numero",
+                 "atributos": {
+                  "valor": "2",
+                  "tipo_numero": "inteiro"
+                 },
+                 "filhos": []
+                },
+                {
+                 "id": "n10",
+                 "tipo": "NUMERO",
+                 "rotulo": "Número",
+                 "linha": 2,
+                 "coluna": 14,
+                 "linha_fim": 2,
+                 "coluna_fim": 14,
+                 "regra": "FATOR → numero",
+                 "atributos": {
+                  "valor": "3",
+                  "tipo_numero": "inteiro"
+                 },
+                 "filhos": []
+                }
+               ]
+              }
+             ]
+            },
+            {
+             "id": "n13",
+             "tipo": "NUMERO",
+             "rotulo": "Número",
+             "linha": 2,
+             "coluna": 19,
+             "linha_fim": 2,
+             "coluna_fim": 19,
+             "regra": "FATOR → numero",
+             "atributos": {
+              "valor": "4",
+              "tipo_numero": "inteiro"
+             },
+             "filhos": []
+            }
+           ]
+          },
+          {
+           "id": "n15",
+           "tipo": "NUMERO",
+           "rotulo": "Número",
+           "linha": 2,
+           "coluna": 23,
+           "linha_fim": 2,
+           "coluna_fim": 23,
+           "regra": "FATOR → numero",
+           "atributos": {
+            "valor": "2",
+            "tipo_numero": "inteiro"
+           },
+           "filhos": []
+          }
+         ]
+        },
+        {
+         "id": "n17",
+         "tipo": "NUMERO",
+         "rotulo": "Número",
+         "linha": 2,
+         "coluna": 27,
+         "linha_fim": 2,
+         "coluna_fim": 27,
+         "regra": "FATOR → numero",
+         "atributos": {
+          "valor": "1",
+          "tipo_numero": "inteiro"
+         },
+         "filhos": []
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "arvore_parcial": [],
+  "erros": [],
+  "avisos": [],
+  "estatisticas": {
+   "nos": 20,
+   "profundidade": 8
+  },
+  "passos": [
+   {
+    "numero": 1,
+    "tipo": "inicio",
+    "pilha": [
+     "$",
+     "PROGRAMA"
+    ],
+    "entrada": [
+     "total",
+     "=",
+     "2",
+     "+",
+     "3",
+     "*",
+     "4",
+     "NOVA_LINHA",
+     "…"
+    ],
+    "acao": "Início: a pilha contém $ e o símbolo inicial PROGRAMA.",
+    "producao": null,
+    "celula": null,
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 2,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB"
+    ],
+    "entrada": [
+     "total",
+     "=",
+     "2",
+     "+",
+     "3",
+     "*",
+     "4",
+     "NOVA_LINHA",
+     "…"
+    ],
+    "acao": "M[PROGRAMA, identificador] = 1: aplica PROGRAMA → LISTA_ATRIB.",
+    "producao": 1,
+    "celula": {
+     "nao_terminal": "PROGRAMA",
+     "terminal": "identificador"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 3,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "ATRIB"
+    ],
+    "entrada": [
+     "total",
+     "=",
+     "2",
+     "+",
+     "3",
+     "*",
+     "4",
+     "NOVA_LINHA",
+     "…"
+    ],
+    "acao": "M[LISTA_ATRIB, identificador] = 2: aplica LISTA_ATRIB → ATRIB LISTA_ATRIB.",
+    "producao": 2,
+    "celula": {
+     "nao_terminal": "LISTA_ATRIB",
+     "terminal": "identificador"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 4,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR",
+     "=",
+     "{alvo}",
+     "identificador"
+    ],
+    "entrada": [
+     "total",
+     "=",
+     "2",
+     "+",
+     "3",
+     "*",
+     "4",
+     "NOVA_LINHA",
+     "…"
+    ],
+    "acao": "M[ATRIB, identificador] = 4: aplica ATRIB → identificador = EXPR NOVA_LINHA.",
+    "producao": 4,
+    "celula": {
+     "nao_terminal": "ATRIB",
+     "terminal": "identificador"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 5,
+    "tipo": "casar",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR",
+     "=",
+     "{alvo}"
+    ],
+    "entrada": [
+     "=",
+     "2",
+     "+",
+     "3",
+     "*",
+     "4",
+     "NOVA_LINHA",
+     "media",
+     "…"
+    ],
+    "acao": "Casa o terminal identificador com 'total' e avança na entrada.",
+    "producao": null,
+    "celula": null,
+    "token": 0,
+    "no_criado": null
+   },
+   {
+    "numero": 6,
+    "tipo": "acao",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR",
+     "="
+    ],
+    "entrada": [
+     "=",
+     "2",
+     "+",
+     "3",
+     "*",
+     "4",
+     "NOVA_LINHA",
+     "media",
+     "…"
+    ],
+    "acao": "Ação {alvo}: cria o nó IDENTIFICADOR do lado esquerdo da atribuição (IDENTIFICADOR).",
+    "producao": null,
+    "celula": null,
+    "token": null,
+    "no_criado": "n1"
+   },
+   {
+    "numero": 7,
+    "tipo": "casar",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR"
+    ],
+    "entrada": [
+     "2",
+     "+",
+     "3",
+     "*",
+     "4",
+     "NOVA_LINHA",
+     "media",
+     "=",
+     "…"
+    ],
+    "acao": "Casa o terminal '=' com '=' e avança na entrada.",
+    "producao": null,
+    "celula": null,
+    "token": 1,
+    "no_criado": null
+   },
+   {
+    "numero": 8,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO"
+    ],
+    "entrada": [
+     "2",
+     "+",
+     "3",
+     "*",
+     "4",
+     "NOVA_LINHA",
+     "media",
+     "=",
+     "…"
+    ],
+    "acao": "M[EXPR, numero] = 5: aplica EXPR → TERMO EXPR'.",
+    "producao": 5,
+    "celula": {
+     "nao_terminal": "EXPR",
+     "terminal": "numero"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 9,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'",
+     "FATOR"
+    ],
+    "entrada": [
+     "2",
+     "+",
+     "3",
+     "*",
+     "4",
+     "NOVA_LINHA",
+     "media",
+     "=",
+     "…"
+    ],
+    "acao": "M[TERMO, numero] = 9: aplica TERMO → FATOR TERMO'.",
+    "producao": 9,
+    "celula": {
+     "nao_terminal": "TERMO",
+     "terminal": "numero"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 10,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'",
+     "{num}",
+     "numero"
+    ],
+    "entrada": [
+     "2",
+     "+",
+     "3",
+     "*",
+     "4",
+     "NOVA_LINHA",
+     "media",
+     "=",
+     "…"
+    ],
+    "acao": "M[FATOR, numero] = 14: aplica FATOR → numero.",
+    "producao": 14,
+    "celula": {
+     "nao_terminal": "FATOR",
+     "terminal": "numero"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 11,
+    "tipo": "casar",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'",
+     "{num}"
+    ],
+    "entrada": [
+     "+",
+     "3",
+     "*",
+     "4",
+     "NOVA_LINHA",
+     "media",
+     "=",
+     "(",
+     "…"
+    ],
+    "acao": "Casa o terminal número com '2' e avança na entrada.",
+    "producao": null,
+    "celula": null,
+    "token": 2,
+    "no_criado": null
+   },
+   {
+    "numero": 12,
+    "tipo": "acao",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'"
+    ],
+    "entrada": [
+     "+",
+     "3",
+     "*",
+     "4",
+     "NOVA_LINHA",
+     "media",
+     "=",
+     "(",
+     "…"
+    ],
+    "acao": "Ação {num}: cria o nó NUMERO (NUMERO).",
+    "producao": null,
+    "celula": null,
+    "token": null,
+    "no_criado": "n2"
+   },
+   {
+    "numero": 13,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'"
+    ],
+    "entrada": [
+     "+",
+     "3",
+     "*",
+     "4",
+     "NOVA_LINHA",
+     "media",
+     "=",
+     "(",
+     "…"
+    ],
+    "acao": "M[TERMO', +] = 12: aplica TERMO' → ε.",
+    "producao": 12,
+    "celula": {
+     "nao_terminal": "TERMO'",
+     "terminal": "+"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 14,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "{bin}",
+     "TERMO",
+     "{op}",
+     "+"
+    ],
+    "entrada": [
+     "+",
+     "3",
+     "*",
+     "4",
+     "NOVA_LINHA",
+     "media",
+     "=",
+     "(",
+     "…"
+    ],
+    "acao": "M[EXPR', +] = 6: aplica EXPR' → + TERMO EXPR'.",
+    "producao": 6,
+    "celula": {
+     "nao_terminal": "EXPR'",
+     "terminal": "+"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 15,
+    "tipo": "casar",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "{bin}",
+     "TERMO",
+     "{op}"
+    ],
+    "entrada": [
+     "3",
+     "*",
+     "4",
+     "NOVA_LINHA",
+     "media",
+     "=",
+     "(",
+     "2",
+     "…"
+    ],
+    "acao": "Casa o terminal '+' com '+' e avança na entrada.",
+    "producao": null,
+    "celula": null,
+    "token": 3,
+    "no_criado": null
+   },
+   {
+    "numero": 16,
+    "tipo": "acao",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "{bin}",
+     "TERMO"
+    ],
+    "entrada": [
+     "3",
+     "*",
+     "4",
+     "NOVA_LINHA",
+     "media",
+     "=",
+     "(",
+     "2",
+     "…"
+    ],
+    "acao": "Ação {op}: guarda o operador lido.",
+    "producao": null,
+    "celula": null,
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 17,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "{bin}",
+     "TERMO'",
+     "FATOR"
+    ],
+    "entrada": [
+     "3",
+     "*",
+     "4",
+     "NOVA_LINHA",
+     "media",
+     "=",
+     "(",
+     "2",
+     "…"
+    ],
+    "acao": "M[TERMO, numero] = 9: aplica TERMO → FATOR TERMO'.",
+    "producao": 9,
+    "celula": {
+     "nao_terminal": "TERMO",
+     "terminal": "numero"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 18,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "{bin}",
+     "TERMO'",
+     "{num}",
+     "numero"
+    ],
+    "entrada": [
+     "3",
+     "*",
+     "4",
+     "NOVA_LINHA",
+     "media",
+     "=",
+     "(",
+     "2",
+     "…"
+    ],
+    "acao": "M[FATOR, numero] = 14: aplica FATOR → numero.",
+    "producao": 14,
+    "celula": {
+     "nao_terminal": "FATOR",
+     "terminal": "numero"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 19,
+    "tipo": "casar",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "{bin}",
+     "TERMO'",
+     "{num}"
+    ],
+    "entrada": [
+     "*",
+     "4",
+     "NOVA_LINHA",
+     "media",
+     "=",
+     "(",
+     "2",
+     "+",
+     "…"
+    ],
+    "acao": "Casa o terminal número com '3' e avança na entrada.",
+    "producao": null,
+    "celula": null,
+    "token": 4,
+    "no_criado": null
+   },
+   {
+    "numero": 20,
+    "tipo": "acao",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "{bin}",
+     "TERMO'"
+    ],
+    "entrada": [
+     "*",
+     "4",
+     "NOVA_LINHA",
+     "media",
+     "=",
+     "(",
+     "2",
+     "+",
+     "…"
+    ],
+    "acao": "Ação {num}: cria o nó NUMERO (NUMERO).",
+    "producao": null,
+    "celula": null,
+    "token": null,
+    "no_criado": "n3"
+   },
+   {
+    "numero": 21,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "{bin}",
+     "TERMO'",
+     "{bin}",
+     "FATOR",
+     "{op}",
+     "*"
+    ],
+    "entrada": [
+     "*",
+     "4",
+     "NOVA_LINHA",
+     "media",
+     "=",
+     "(",
+     "2",
+     "+",
+     "…"
+    ],
+    "acao": "M[TERMO', *] = 10: aplica TERMO' → * FATOR TERMO'.",
+    "producao": 10,
+    "celula": {
+     "nao_terminal": "TERMO'",
+     "terminal": "*"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 22,
+    "tipo": "casar",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "{bin}",
+     "TERMO'",
+     "{bin}",
+     "FATOR",
+     "{op}"
+    ],
+    "entrada": [
+     "4",
+     "NOVA_LINHA",
+     "media",
+     "=",
+     "(",
+     "2",
+     "+",
+     "3",
+     "…"
+    ],
+    "acao": "Casa o terminal '*' com '*' e avança na entrada.",
+    "producao": null,
+    "celula": null,
+    "token": 5,
+    "no_criado": null
+   },
+   {
+    "numero": 23,
+    "tipo": "acao",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "{bin}",
+     "TERMO'",
+     "{bin}",
+     "FATOR"
+    ],
+    "entrada": [
+     "4",
+     "NOVA_LINHA",
+     "media",
+     "=",
+     "(",
+     "2",
+     "+",
+     "3",
+     "…"
+    ],
+    "acao": "Ação {op}: guarda o operador lido.",
+    "producao": null,
+    "celula": null,
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 24,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "{bin}",
+     "TERMO'",
+     "{bin}",
+     "{num}",
+     "numero"
+    ],
+    "entrada": [
+     "4",
+     "NOVA_LINHA",
+     "media",
+     "=",
+     "(",
+     "2",
+     "+",
+     "3",
+     "…"
+    ],
+    "acao": "M[FATOR, numero] = 14: aplica FATOR → numero.",
+    "producao": 14,
+    "celula": {
+     "nao_terminal": "FATOR",
+     "terminal": "numero"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 25,
+    "tipo": "casar",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "{bin}",
+     "TERMO'",
+     "{bin}",
+     "{num}"
+    ],
+    "entrada": [
+     "NOVA_LINHA",
+     "media",
+     "=",
+     "(",
+     "2",
+     "+",
+     "3",
+     ")",
+     "…"
+    ],
+    "acao": "Casa o terminal número com '4' e avança na entrada.",
+    "producao": null,
+    "celula": null,
+    "token": 6,
+    "no_criado": null
+   },
+   {
+    "numero": 26,
+    "tipo": "acao",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "{bin}",
+     "TERMO'",
+     "{bin}"
+    ],
+    "entrada": [
+     "NOVA_LINHA",
+     "media",
+     "=",
+     "(",
+     "2",
+     "+",
+     "3",
+     ")",
+     "…"
+    ],
+    "acao": "Ação {num}: cria o nó NUMERO (NUMERO).",
+    "producao": null,
+    "celula": null,
+    "token": null,
+    "no_criado": "n4"
+   },
+   {
+    "numero": 27,
+    "tipo": "acao",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "{bin}",
+     "TERMO'"
+    ],
+    "entrada": [
+     "NOVA_LINHA",
+     "media",
+     "=",
+     "(",
+     "2",
+     "+",
+     "3",
+     ")",
+     "…"
+    ],
+    "acao": "Ação {bin}: cria o nó da operação com o operando da esquerda e o da direita (MULTIPLICACAO).",
+    "producao": null,
+    "celula": null,
+    "token": null,
+    "no_criado": "n5"
+   },
+   {
+    "numero": 28,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "{bin}"
+    ],
+    "entrada": [
+     "NOVA_LINHA",
+     "media",
+     "=",
+     "(",
+     "2",
+     "+",
+     "3",
+     ")",
+     "…"
+    ],
+    "acao": "M[TERMO', NOVA_LINHA] = 12: aplica TERMO' → ε.",
+    "producao": 12,
+    "celula": {
+     "nao_terminal": "TERMO'",
+     "terminal": "NOVA_LINHA"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 29,
+    "tipo": "acao",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'"
+    ],
+    "entrada": [
+     "NOVA_LINHA",
+     "media",
+     "=",
+     "(",
+     "2",
+     "+",
+     "3",
+     ")",
+     "…"
+    ],
+    "acao": "Ação {bin}: cria o nó da operação com o operando da esquerda e o da direita (ADICAO).",
+    "producao": null,
+    "celula": null,
+    "token": null,
+    "no_criado": "n6"
+   },
+   {
+    "numero": 30,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA"
+    ],
+    "entrada": [
+     "NOVA_LINHA",
+     "media",
+     "=",
+     "(",
+     "2",
+     "+",
+     "3",
+     ")",
+     "…"
+    ],
+    "acao": "M[EXPR', NOVA_LINHA] = 8: aplica EXPR' → ε.",
+    "producao": 8,
+    "celula": {
+     "nao_terminal": "EXPR'",
+     "terminal": "NOVA_LINHA"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 31,
+    "tipo": "casar",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}"
+    ],
+    "entrada": [
+     "media",
+     "=",
+     "(",
+     "2",
+     "+",
+     "3",
+     ")",
+     "*",
+     "…"
+    ],
+    "acao": "Casa NOVA_LINHA com o fim da linha e avança.",
+    "producao": null,
+    "celula": null,
+    "token": 7,
+    "no_criado": null
+   },
+   {
+    "numero": 32,
+    "tipo": "acao",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB"
+    ],
+    "entrada": [
+     "media",
+     "=",
+     "(",
+     "2",
+     "+",
+     "3",
+     ")",
+     "*",
+     "…"
+    ],
+    "acao": "Ação {atrib}: cria o nó ATRIBUICAO com o alvo e a expressão (ATRIBUICAO).",
+    "producao": null,
+    "celula": null,
+    "token": null,
+    "no_criado": "n7"
+   },
+   {
+    "numero": 33,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "ATRIB"
+    ],
+    "entrada": [
+     "media",
+     "=",
+     "(",
+     "2",
+     "+",
+     "3",
+     ")",
+     "*",
+     "…"
+    ],
+    "acao": "M[LISTA_ATRIB, identificador] = 2: aplica LISTA_ATRIB → ATRIB LISTA_ATRIB.",
+    "producao": 2,
+    "celula": {
+     "nao_terminal": "LISTA_ATRIB",
+     "terminal": "identificador"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 34,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR",
+     "=",
+     "{alvo}",
+     "identificador"
+    ],
+    "entrada": [
+     "media",
+     "=",
+     "(",
+     "2",
+     "+",
+     "3",
+     ")",
+     "*",
+     "…"
+    ],
+    "acao": "M[ATRIB, identificador] = 4: aplica ATRIB → identificador = EXPR NOVA_LINHA.",
+    "producao": 4,
+    "celula": {
+     "nao_terminal": "ATRIB",
+     "terminal": "identificador"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 35,
+    "tipo": "casar",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR",
+     "=",
+     "{alvo}"
+    ],
+    "entrada": [
+     "=",
+     "(",
+     "2",
+     "+",
+     "3",
+     ")",
+     "*",
+     "4",
+     "…"
+    ],
+    "acao": "Casa o terminal identificador com 'media' e avança na entrada.",
+    "producao": null,
+    "celula": null,
+    "token": 8,
+    "no_criado": null
+   },
+   {
+    "numero": 36,
+    "tipo": "acao",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR",
+     "="
+    ],
+    "entrada": [
+     "=",
+     "(",
+     "2",
+     "+",
+     "3",
+     ")",
+     "*",
+     "4",
+     "…"
+    ],
+    "acao": "Ação {alvo}: cria o nó IDENTIFICADOR do lado esquerdo da atribuição (IDENTIFICADOR).",
+    "producao": null,
+    "celula": null,
+    "token": null,
+    "no_criado": "n8"
+   },
+   {
+    "numero": 37,
+    "tipo": "casar",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR"
+    ],
+    "entrada": [
+     "(",
+     "2",
+     "+",
+     "3",
+     ")",
+     "*",
+     "4",
+     "/",
+     "…"
+    ],
+    "acao": "Casa o terminal '=' com '=' e avança na entrada.",
+    "producao": null,
+    "celula": null,
+    "token": 9,
+    "no_criado": null
+   },
+   {
+    "numero": 38,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO"
+    ],
+    "entrada": [
+     "(",
+     "2",
+     "+",
+     "3",
+     ")",
+     "*",
+     "4",
+     "/",
+     "…"
+    ],
+    "acao": "M[EXPR, (] = 5: aplica EXPR → TERMO EXPR'.",
+    "producao": 5,
+    "celula": {
+     "nao_terminal": "EXPR",
+     "terminal": "("
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 39,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'",
+     "FATOR"
+    ],
+    "entrada": [
+     "(",
+     "2",
+     "+",
+     "3",
+     ")",
+     "*",
+     "4",
+     "/",
+     "…"
+    ],
+    "acao": "M[TERMO, (] = 9: aplica TERMO → FATOR TERMO'.",
+    "producao": 9,
+    "celula": {
+     "nao_terminal": "TERMO",
+     "terminal": "("
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 40,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'",
+     "{agrupa}",
+     ")",
+     "EXPR",
+     "{abre}",
+     "("
+    ],
+    "entrada": [
+     "(",
+     "2",
+     "+",
+     "3",
+     ")",
+     "*",
+     "4",
+     "/",
+     "…"
+    ],
+    "acao": "M[FATOR, (] = 16: aplica FATOR → ( EXPR ).",
+    "producao": 16,
+    "celula": {
+     "nao_terminal": "FATOR",
+     "terminal": "("
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 41,
+    "tipo": "casar",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'",
+     "{agrupa}",
+     ")",
+     "EXPR",
+     "{abre}"
+    ],
+    "entrada": [
+     "2",
+     "+",
+     "3",
+     ")",
+     "*",
+     "4",
+     "/",
+     "2",
+     "…"
+    ],
+    "acao": "Casa o terminal '(' com '(' e avança na entrada.",
+    "producao": null,
+    "celula": null,
+    "token": 10,
+    "no_criado": null
+   },
+   {
+    "numero": 42,
+    "tipo": "acao",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'",
+     "{agrupa}",
+     ")",
+     "EXPR"
+    ],
+    "entrada": [
+     "2",
+     "+",
+     "3",
+     ")",
+     "*",
+     "4",
+     "/",
+     "2",
+     "…"
+    ],
+    "acao": "Ação {abre}: marca a abertura do parêntese.",
+    "producao": null,
+    "celula": null,
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 43,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'",
+     "{agrupa}",
+     ")",
+     "EXPR'",
+     "TERMO"
+    ],
+    "entrada": [
+     "2",
+     "+",
+     "3",
+     ")",
+     "*",
+     "4",
+     "/",
+     "2",
+     "…"
+    ],
+    "acao": "M[EXPR, numero] = 5: aplica EXPR → TERMO EXPR'.",
+    "producao": 5,
+    "celula": {
+     "nao_terminal": "EXPR",
+     "terminal": "numero"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 44,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'",
+     "{agrupa}",
+     ")",
+     "EXPR'",
+     "TERMO'",
+     "FATOR"
+    ],
+    "entrada": [
+     "2",
+     "+",
+     "3",
+     ")",
+     "*",
+     "4",
+     "/",
+     "2",
+     "…"
+    ],
+    "acao": "M[TERMO, numero] = 9: aplica TERMO → FATOR TERMO'.",
+    "producao": 9,
+    "celula": {
+     "nao_terminal": "TERMO",
+     "terminal": "numero"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 45,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'",
+     "{agrupa}",
+     ")",
+     "EXPR'",
+     "TERMO'",
+     "{num}",
+     "numero"
+    ],
+    "entrada": [
+     "2",
+     "+",
+     "3",
+     ")",
+     "*",
+     "4",
+     "/",
+     "2",
+     "…"
+    ],
+    "acao": "M[FATOR, numero] = 14: aplica FATOR → numero.",
+    "producao": 14,
+    "celula": {
+     "nao_terminal": "FATOR",
+     "terminal": "numero"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 46,
+    "tipo": "casar",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'",
+     "{agrupa}",
+     ")",
+     "EXPR'",
+     "TERMO'",
+     "{num}"
+    ],
+    "entrada": [
+     "+",
+     "3",
+     ")",
+     "*",
+     "4",
+     "/",
+     "2",
+     "-",
+     "…"
+    ],
+    "acao": "Casa o terminal número com '2' e avança na entrada.",
+    "producao": null,
+    "celula": null,
+    "token": 11,
+    "no_criado": null
+   },
+   {
+    "numero": 47,
+    "tipo": "acao",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'",
+     "{agrupa}",
+     ")",
+     "EXPR'",
+     "TERMO'"
+    ],
+    "entrada": [
+     "+",
+     "3",
+     ")",
+     "*",
+     "4",
+     "/",
+     "2",
+     "-",
+     "…"
+    ],
+    "acao": "Ação {num}: cria o nó NUMERO (NUMERO).",
+    "producao": null,
+    "celula": null,
+    "token": null,
+    "no_criado": "n9"
+   },
+   {
+    "numero": 48,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'",
+     "{agrupa}",
+     ")",
+     "EXPR'"
+    ],
+    "entrada": [
+     "+",
+     "3",
+     ")",
+     "*",
+     "4",
+     "/",
+     "2",
+     "-",
+     "…"
+    ],
+    "acao": "M[TERMO', +] = 12: aplica TERMO' → ε.",
+    "producao": 12,
+    "celula": {
+     "nao_terminal": "TERMO'",
+     "terminal": "+"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 49,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'",
+     "{agrupa}",
+     ")",
+     "EXPR'",
+     "{bin}",
+     "TERMO",
+     "{op}",
+     "+"
+    ],
+    "entrada": [
+     "+",
+     "3",
+     ")",
+     "*",
+     "4",
+     "/",
+     "2",
+     "-",
+     "…"
+    ],
+    "acao": "M[EXPR', +] = 6: aplica EXPR' → + TERMO EXPR'.",
+    "producao": 6,
+    "celula": {
+     "nao_terminal": "EXPR'",
+     "terminal": "+"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 50,
+    "tipo": "casar",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'",
+     "{agrupa}",
+     ")",
+     "EXPR'",
+     "{bin}",
+     "TERMO",
+     "{op}"
+    ],
+    "entrada": [
+     "3",
+     ")",
+     "*",
+     "4",
+     "/",
+     "2",
+     "-",
+     "1",
+     "…"
+    ],
+    "acao": "Casa o terminal '+' com '+' e avança na entrada.",
+    "producao": null,
+    "celula": null,
+    "token": 12,
+    "no_criado": null
+   },
+   {
+    "numero": 51,
+    "tipo": "acao",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'",
+     "{agrupa}",
+     ")",
+     "EXPR'",
+     "{bin}",
+     "TERMO"
+    ],
+    "entrada": [
+     "3",
+     ")",
+     "*",
+     "4",
+     "/",
+     "2",
+     "-",
+     "1",
+     "…"
+    ],
+    "acao": "Ação {op}: guarda o operador lido.",
+    "producao": null,
+    "celula": null,
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 52,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'",
+     "{agrupa}",
+     ")",
+     "EXPR'",
+     "{bin}",
+     "TERMO'",
+     "FATOR"
+    ],
+    "entrada": [
+     "3",
+     ")",
+     "*",
+     "4",
+     "/",
+     "2",
+     "-",
+     "1",
+     "…"
+    ],
+    "acao": "M[TERMO, numero] = 9: aplica TERMO → FATOR TERMO'.",
+    "producao": 9,
+    "celula": {
+     "nao_terminal": "TERMO",
+     "terminal": "numero"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 53,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'",
+     "{agrupa}",
+     ")",
+     "EXPR'",
+     "{bin}",
+     "TERMO'",
+     "{num}",
+     "numero"
+    ],
+    "entrada": [
+     "3",
+     ")",
+     "*",
+     "4",
+     "/",
+     "2",
+     "-",
+     "1",
+     "…"
+    ],
+    "acao": "M[FATOR, numero] = 14: aplica FATOR → numero.",
+    "producao": 14,
+    "celula": {
+     "nao_terminal": "FATOR",
+     "terminal": "numero"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 54,
+    "tipo": "casar",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'",
+     "{agrupa}",
+     ")",
+     "EXPR'",
+     "{bin}",
+     "TERMO'",
+     "{num}"
+    ],
+    "entrada": [
+     ")",
+     "*",
+     "4",
+     "/",
+     "2",
+     "-",
+     "1",
+     "NOVA_LINHA",
+     "…"
+    ],
+    "acao": "Casa o terminal número com '3' e avança na entrada.",
+    "producao": null,
+    "celula": null,
+    "token": 13,
+    "no_criado": null
+   },
+   {
+    "numero": 55,
+    "tipo": "acao",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'",
+     "{agrupa}",
+     ")",
+     "EXPR'",
+     "{bin}",
+     "TERMO'"
+    ],
+    "entrada": [
+     ")",
+     "*",
+     "4",
+     "/",
+     "2",
+     "-",
+     "1",
+     "NOVA_LINHA",
+     "…"
+    ],
+    "acao": "Ação {num}: cria o nó NUMERO (NUMERO).",
+    "producao": null,
+    "celula": null,
+    "token": null,
+    "no_criado": "n10"
+   },
+   {
+    "numero": 56,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'",
+     "{agrupa}",
+     ")",
+     "EXPR'",
+     "{bin}"
+    ],
+    "entrada": [
+     ")",
+     "*",
+     "4",
+     "/",
+     "2",
+     "-",
+     "1",
+     "NOVA_LINHA",
+     "…"
+    ],
+    "acao": "M[TERMO', )] = 12: aplica TERMO' → ε.",
+    "producao": 12,
+    "celula": {
+     "nao_terminal": "TERMO'",
+     "terminal": ")"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 57,
+    "tipo": "acao",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'",
+     "{agrupa}",
+     ")",
+     "EXPR'"
+    ],
+    "entrada": [
+     ")",
+     "*",
+     "4",
+     "/",
+     "2",
+     "-",
+     "1",
+     "NOVA_LINHA",
+     "…"
+    ],
+    "acao": "Ação {bin}: cria o nó da operação com o operando da esquerda e o da direita (ADICAO).",
+    "producao": null,
+    "celula": null,
+    "token": null,
+    "no_criado": "n11"
+   },
+   {
+    "numero": 58,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'",
+     "{agrupa}",
+     ")"
+    ],
+    "entrada": [
+     ")",
+     "*",
+     "4",
+     "/",
+     "2",
+     "-",
+     "1",
+     "NOVA_LINHA",
+     "…"
+    ],
+    "acao": "M[EXPR', )] = 8: aplica EXPR' → ε.",
+    "producao": 8,
+    "celula": {
+     "nao_terminal": "EXPR'",
+     "terminal": ")"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 59,
+    "tipo": "casar",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'",
+     "{agrupa}"
+    ],
+    "entrada": [
+     "*",
+     "4",
+     "/",
+     "2",
+     "-",
+     "1",
+     "NOVA_LINHA",
+     "$"
+    ],
+    "acao": "Casa o terminal ')' com ')' e avança na entrada.",
+    "producao": null,
+    "celula": null,
+    "token": 14,
+    "no_criado": null
+   },
+   {
+    "numero": 60,
+    "tipo": "acao",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'"
+    ],
+    "entrada": [
+     "*",
+     "4",
+     "/",
+     "2",
+     "-",
+     "1",
+     "NOVA_LINHA",
+     "$"
+    ],
+    "acao": "Ação {agrupa}: cria o nó AGRUPAMENTO (parênteses) (AGRUPAMENTO).",
+    "producao": null,
+    "celula": null,
+    "token": null,
+    "no_criado": "n12"
+   },
+   {
+    "numero": 61,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'",
+     "{bin}",
+     "FATOR",
+     "{op}",
+     "*"
+    ],
+    "entrada": [
+     "*",
+     "4",
+     "/",
+     "2",
+     "-",
+     "1",
+     "NOVA_LINHA",
+     "$"
+    ],
+    "acao": "M[TERMO', *] = 10: aplica TERMO' → * FATOR TERMO'.",
+    "producao": 10,
+    "celula": {
+     "nao_terminal": "TERMO'",
+     "terminal": "*"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 62,
+    "tipo": "casar",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'",
+     "{bin}",
+     "FATOR",
+     "{op}"
+    ],
+    "entrada": [
+     "4",
+     "/",
+     "2",
+     "-",
+     "1",
+     "NOVA_LINHA",
+     "$"
+    ],
+    "acao": "Casa o terminal '*' com '*' e avança na entrada.",
+    "producao": null,
+    "celula": null,
+    "token": 15,
+    "no_criado": null
+   },
+   {
+    "numero": 63,
+    "tipo": "acao",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'",
+     "{bin}",
+     "FATOR"
+    ],
+    "entrada": [
+     "4",
+     "/",
+     "2",
+     "-",
+     "1",
+     "NOVA_LINHA",
+     "$"
+    ],
+    "acao": "Ação {op}: guarda o operador lido.",
+    "producao": null,
+    "celula": null,
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 64,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'",
+     "{bin}",
+     "{num}",
+     "numero"
+    ],
+    "entrada": [
+     "4",
+     "/",
+     "2",
+     "-",
+     "1",
+     "NOVA_LINHA",
+     "$"
+    ],
+    "acao": "M[FATOR, numero] = 14: aplica FATOR → numero.",
+    "producao": 14,
+    "celula": {
+     "nao_terminal": "FATOR",
+     "terminal": "numero"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 65,
+    "tipo": "casar",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'",
+     "{bin}",
+     "{num}"
+    ],
+    "entrada": [
+     "/",
+     "2",
+     "-",
+     "1",
+     "NOVA_LINHA",
+     "$"
+    ],
+    "acao": "Casa o terminal número com '4' e avança na entrada.",
+    "producao": null,
+    "celula": null,
+    "token": 16,
+    "no_criado": null
+   },
+   {
+    "numero": 66,
+    "tipo": "acao",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'",
+     "{bin}"
+    ],
+    "entrada": [
+     "/",
+     "2",
+     "-",
+     "1",
+     "NOVA_LINHA",
+     "$"
+    ],
+    "acao": "Ação {num}: cria o nó NUMERO (NUMERO).",
+    "producao": null,
+    "celula": null,
+    "token": null,
+    "no_criado": "n13"
+   },
+   {
+    "numero": 67,
+    "tipo": "acao",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'"
+    ],
+    "entrada": [
+     "/",
+     "2",
+     "-",
+     "1",
+     "NOVA_LINHA",
+     "$"
+    ],
+    "acao": "Ação {bin}: cria o nó da operação com o operando da esquerda e o da direita (MULTIPLICACAO).",
+    "producao": null,
+    "celula": null,
+    "token": null,
+    "no_criado": "n14"
+   },
+   {
+    "numero": 68,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'",
+     "{bin}",
+     "FATOR",
+     "{op}",
+     "/"
+    ],
+    "entrada": [
+     "/",
+     "2",
+     "-",
+     "1",
+     "NOVA_LINHA",
+     "$"
+    ],
+    "acao": "M[TERMO', /] = 11: aplica TERMO' → / FATOR TERMO'.",
+    "producao": 11,
+    "celula": {
+     "nao_terminal": "TERMO'",
+     "terminal": "/"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 69,
+    "tipo": "casar",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'",
+     "{bin}",
+     "FATOR",
+     "{op}"
+    ],
+    "entrada": [
+     "2",
+     "-",
+     "1",
+     "NOVA_LINHA",
+     "$"
+    ],
+    "acao": "Casa o terminal '/' com '/' e avança na entrada.",
+    "producao": null,
+    "celula": null,
+    "token": 17,
+    "no_criado": null
+   },
+   {
+    "numero": 70,
+    "tipo": "acao",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'",
+     "{bin}",
+     "FATOR"
+    ],
+    "entrada": [
+     "2",
+     "-",
+     "1",
+     "NOVA_LINHA",
+     "$"
+    ],
+    "acao": "Ação {op}: guarda o operador lido.",
+    "producao": null,
+    "celula": null,
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 71,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'",
+     "{bin}",
+     "{num}",
+     "numero"
+    ],
+    "entrada": [
+     "2",
+     "-",
+     "1",
+     "NOVA_LINHA",
+     "$"
+    ],
+    "acao": "M[FATOR, numero] = 14: aplica FATOR → numero.",
+    "producao": 14,
+    "celula": {
+     "nao_terminal": "FATOR",
+     "terminal": "numero"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 72,
+    "tipo": "casar",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'",
+     "{bin}",
+     "{num}"
+    ],
+    "entrada": [
+     "-",
+     "1",
+     "NOVA_LINHA",
+     "$"
+    ],
+    "acao": "Casa o terminal número com '2' e avança na entrada.",
+    "producao": null,
+    "celula": null,
+    "token": 18,
+    "no_criado": null
+   },
+   {
+    "numero": 73,
+    "tipo": "acao",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'",
+     "{bin}"
+    ],
+    "entrada": [
+     "-",
+     "1",
+     "NOVA_LINHA",
+     "$"
+    ],
+    "acao": "Ação {num}: cria o nó NUMERO (NUMERO).",
+    "producao": null,
+    "celula": null,
+    "token": null,
+    "no_criado": "n15"
+   },
+   {
+    "numero": 74,
+    "tipo": "acao",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "TERMO'"
+    ],
+    "entrada": [
+     "-",
+     "1",
+     "NOVA_LINHA",
+     "$"
+    ],
+    "acao": "Ação {bin}: cria o nó da operação com o operando da esquerda e o da direita (DIVISAO).",
+    "producao": null,
+    "celula": null,
+    "token": null,
+    "no_criado": "n16"
+   },
+   {
+    "numero": 75,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'"
+    ],
+    "entrada": [
+     "-",
+     "1",
+     "NOVA_LINHA",
+     "$"
+    ],
+    "acao": "M[TERMO', -] = 12: aplica TERMO' → ε.",
+    "producao": 12,
+    "celula": {
+     "nao_terminal": "TERMO'",
+     "terminal": "-"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 76,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "{bin}",
+     "TERMO",
+     "{op}",
+     "-"
+    ],
+    "entrada": [
+     "-",
+     "1",
+     "NOVA_LINHA",
+     "$"
+    ],
+    "acao": "M[EXPR', -] = 7: aplica EXPR' → - TERMO EXPR'.",
+    "producao": 7,
+    "celula": {
+     "nao_terminal": "EXPR'",
+     "terminal": "-"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 77,
+    "tipo": "casar",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "{bin}",
+     "TERMO",
+     "{op}"
+    ],
+    "entrada": [
+     "1",
+     "NOVA_LINHA",
+     "$"
+    ],
+    "acao": "Casa o terminal '-' com '-' e avança na entrada.",
+    "producao": null,
+    "celula": null,
+    "token": 19,
+    "no_criado": null
+   },
+   {
+    "numero": 78,
+    "tipo": "acao",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "{bin}",
+     "TERMO"
+    ],
+    "entrada": [
+     "1",
+     "NOVA_LINHA",
+     "$"
+    ],
+    "acao": "Ação {op}: guarda o operador lido.",
+    "producao": null,
+    "celula": null,
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 79,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "{bin}",
+     "TERMO'",
+     "FATOR"
+    ],
+    "entrada": [
+     "1",
+     "NOVA_LINHA",
+     "$"
+    ],
+    "acao": "M[TERMO, numero] = 9: aplica TERMO → FATOR TERMO'.",
+    "producao": 9,
+    "celula": {
+     "nao_terminal": "TERMO",
+     "terminal": "numero"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 80,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "{bin}",
+     "TERMO'",
+     "{num}",
+     "numero"
+    ],
+    "entrada": [
+     "1",
+     "NOVA_LINHA",
+     "$"
+    ],
+    "acao": "M[FATOR, numero] = 14: aplica FATOR → numero.",
+    "producao": 14,
+    "celula": {
+     "nao_terminal": "FATOR",
+     "terminal": "numero"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 81,
+    "tipo": "casar",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "{bin}",
+     "TERMO'",
+     "{num}"
+    ],
+    "entrada": [
+     "NOVA_LINHA",
+     "$"
+    ],
+    "acao": "Casa o terminal número com '1' e avança na entrada.",
+    "producao": null,
+    "celula": null,
+    "token": 20,
+    "no_criado": null
+   },
+   {
+    "numero": 82,
+    "tipo": "acao",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "{bin}",
+     "TERMO'"
+    ],
+    "entrada": [
+     "NOVA_LINHA",
+     "$"
+    ],
+    "acao": "Ação {num}: cria o nó NUMERO (NUMERO).",
+    "producao": null,
+    "celula": null,
+    "token": null,
+    "no_criado": "n17"
+   },
+   {
+    "numero": 83,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'",
+     "{bin}"
+    ],
+    "entrada": [
+     "NOVA_LINHA",
+     "$"
+    ],
+    "acao": "M[TERMO', NOVA_LINHA] = 12: aplica TERMO' → ε.",
+    "producao": 12,
+    "celula": {
+     "nao_terminal": "TERMO'",
+     "terminal": "NOVA_LINHA"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 84,
+    "tipo": "acao",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA",
+     "EXPR'"
+    ],
+    "entrada": [
+     "NOVA_LINHA",
+     "$"
+    ],
+    "acao": "Ação {bin}: cria o nó da operação com o operando da esquerda e o da direita (SUBTRACAO).",
+    "producao": null,
+    "celula": null,
+    "token": null,
+    "no_criado": "n18"
+   },
+   {
+    "numero": 85,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}",
+     "NOVA_LINHA"
+    ],
+    "entrada": [
+     "NOVA_LINHA",
+     "$"
+    ],
+    "acao": "M[EXPR', NOVA_LINHA] = 8: aplica EXPR' → ε.",
+    "producao": 8,
+    "celula": {
+     "nao_terminal": "EXPR'",
+     "terminal": "NOVA_LINHA"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 86,
+    "tipo": "casar",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB",
+     "{atrib}"
+    ],
+    "entrada": [
+     "$"
+    ],
+    "acao": "Casa NOVA_LINHA com o fim da linha e avança.",
+    "producao": null,
+    "celula": null,
+    "token": 21,
+    "no_criado": null
+   },
+   {
+    "numero": 87,
+    "tipo": "acao",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB"
+    ],
+    "entrada": [
+     "$"
+    ],
+    "acao": "Ação {atrib}: cria o nó ATRIBUICAO com o alvo e a expressão (ATRIBUICAO).",
+    "producao": null,
+    "celula": null,
+    "token": null,
+    "no_criado": "n19"
+   },
+   {
+    "numero": 88,
+    "tipo": "expandir",
+    "pilha": [
+     "$"
+    ],
+    "entrada": [
+     "$"
+    ],
+    "acao": "M[LISTA_ATRIB, $] = 3: aplica LISTA_ATRIB → ε.",
+    "producao": 3,
+    "celula": {
+     "nao_terminal": "LISTA_ATRIB",
+     "terminal": "$"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 89,
+    "tipo": "aceitar",
+    "pilha": [
+     "$"
+    ],
+    "entrada": [
+     "$"
+    ],
+    "acao": "Topo $ e entrada $: a entrada foi aceita.",
+    "producao": null,
+    "celula": null,
+    "token": null,
+    "no_criado": null
+   }
+  ],
+  "passos_truncados": false,
+  "total_passos": 89
+ }
+}

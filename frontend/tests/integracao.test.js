@@ -42,20 +42,19 @@ rodar('Integração: interface ↔ backend real', () => {
     }
   });
 
-  // O teste verifica o transporte: o texto volta idêntico. O estado depende de haver erro léxico no texto.
   it.each([
-    ['acentos e emoji', 'nome = "Olá, João ✓ 😀 日本語"\n', 'info'],
-    ['espaços nas pontas', '   x = 1   \n\n', 'info'],
-    ['tabulações', 'x\t=\t5\n\ty = 1', 'info'],
-    ['aspas e barras', 'a = "aspas \\" e \\\\ barra"', 'info'],
-    ['HTML e SQL (aspa sem fechar gera erro léxico)', '<b>x</b> & \'; DROP TABLE t; --', 'erro'],
-    ['caractere nulo (erro léxico)', 'x = 1\u0000', 'erro'],
-  ])('caracteres especiais atravessam a rede intactos: %s', async (_n, texto, estadoEsperado) => {
+    ['acentos e emoji', 'nome = "Olá, João ✓ 😀 日本語"\n'],
+    ['espaços nas pontas', '   x = 1   \n\n'],
+    ['tabulações', 'x\t=\t5\n\ty = 1'],
+    ['aspas e barras', 'a = "aspas \\" e \\\\ barra"'],
+    ['HTML e SQL', '<b>x</b> & \'; DROP TABLE t; --'],
+    ['caractere nulo', 'x = 1\u0000'],
+  ])('caracteres especiais atravessam a rede intactos: %s', async (_n, texto) => {
     const t = await abrir();
     t.digitar(texto);
     t.analisar.click();
     await aguardarResposta(t);
-    expect(t.resultados.dataset.estado).toBe(estadoEsperado);
+    expect(t.resultados.dataset.estado).toBe('info');
     expect(t.d.getElementById('eco-codigo').textContent).toBe(texto);
   });
 
@@ -106,22 +105,83 @@ rodar('Integração: interface ↔ backend real', () => {
   });
 });
 
+rodar('Integração: análise léxica e sintática exibida na interface (backend real)', () => {
+  const abrir = () => carregar({ fetchImpl: fetchReal(URL_BACKEND) });
+
+  it('CT-27: cada exemplo mostra o resultado do seu grupo (válido → árvore; com erro → erro sintático)', async () => {
+    const t = await abrir();
+    for (const ex of t.w.EXEMPLOS) {
+      t.escolher(ex.id);
+      t.analisar.click();
+      await aguardarResposta(t);
+      const secao = t.d.getElementById('secao-analise');
+      expect(secao.hidden, ex.id).toBe(false);
+      expect(secao.dataset.resultado, ex.id).toBe(ex.valido ? 'valido' : 'erro-sintatico');
+      if (ex.valido) expect(t.d.querySelector('#arvore li[data-tipo="PROGRAMA"]'), ex.id).not.toBeNull();
+      else expect(t.d.getElementById('bloco-erro-sintatico').textContent, ex.id).toMatch(/Erro sintático na linha \d+, coluna \d+/);
+    }
+  });
+
+  it('erro léxico real: blocos separados por fase e parser não executado', async () => {
+    const t = await abrir();
+    t.digitar('a = 1 @ 2\nb = 3\n');
+    t.analisar.click();
+    await aguardarResposta(t);
+    expect(t.d.getElementById('bloco-erros-lexicos').textContent).toMatch(/Linha 1, coluna 7/);
+    expect(t.d.getElementById('bloco-sintatico-nao-executado')).not.toBeNull();
+  });
+
+  it('tokens da tabela, do código destacado e das folhas da árvore coincidem (C9)', async () => {
+    const t = await abrir();
+    t.digitar('preco = 10\nnome = "Olá, João 😀"\ntotal = preco * (qtd + 1)\n');
+    t.analisar.click();
+    await aguardarResposta(t);
+    const linhas = [...t.d.querySelectorAll('#tabela-tokens tbody tr')];
+    for (const tr of linhas) {
+      const [i, tipo, lexema, l, c] = [...tr.children].map((td) => td.textContent);
+      if (tipo === 'QUEBRA_DE_LINHA') continue;
+      const span = t.d.querySelector(`#codigo-analisado .tok[data-i="${i}"]`);
+      expect([span.textContent, span.dataset.l, span.dataset.c]).toEqual([lexema, l, c]);
+    }
+    t.w.Analise.selecionarNo(t.d.querySelector('#arvore li[data-tipo="TEXTO"]').dataset.id, { focar: false });
+    expect([...t.d.querySelectorAll('#codigo-analisado .tok.destaque')].map((s) => s.textContent)).toEqual(['"Olá, João 😀"']);
+  });
+
+  it('HTML no código chega à árvore e aos tokens apenas como texto', async () => {
+    const t = await abrir();
+    t.digitar('x = "<img src=x onerror=alert(1)>"\n');
+    t.analisar.click();
+    await aguardarResposta(t);
+    expect(t.d.querySelector('#secao-analise img')).toBeNull();
+    expect(t.d.getElementById('arvore').textContent).toContain('<img src=x onerror=alert(1)>');
+  });
+});
+
 rodar('Integração: contrato HTTP real (cabeçalhos, status e corpo)', () => {
-  it('200: JSON com o formato do contrato', async () => {
+  it('200: JSON com o formato do contrato (campos anteriores preservados + análise)', async () => {
     const r = await post(JSON.stringify({ codigo: 'x = 5 +' }));
     expect(r.status).toBe(200);
     expect(r.headers.get('content-type')).toMatch(/application\/json/);
-    expect(await r.json()).toEqual({
-      recebido: true, sucesso: true, mensagem: 'Código recebido com sucesso.', codigo: 'x = 5 +',
+    const d = await r.json();
+    expect(d).toMatchObject({
+      recebido: true, mensagem: 'Código recebido com sucesso.', codigo: 'x = 5 +',
       estatisticas: { linhas: 1, caracteres: 7, bytes: 7 },
-      tokens: [
-        { tipo: 'IDENTIFICADOR', lexema: 'x', linha: 1, coluna: 1 },
-        { tipo: 'OPERADOR', lexema: '=', linha: 1, coluna: 3 },
-        { tipo: 'LITERAL_INTEIRO', lexema: '5', linha: 1, coluna: 5 },
-        { tipo: 'OPERADOR', lexema: '+', linha: 1, coluna: 7 },
-      ],
-      erros: [],
     });
+    expect(Object.keys(d).sort()).toEqual(
+      ['codigo', 'estatisticas', 'lexico', 'mensagem', 'recebido', 'sintatico', 'sucesso']);
+    expect(d.sucesso).toBe(false);
+    expect(d.lexico.tokens.map((t) => t.lexema)).toEqual(['x', '=', '5', '+']);
+    expect(d.sintatico).toMatchObject({ executado: true, sucesso: false, ast: null });
+    expect(d.sintatico.erros[0]).toMatchObject({
+      tipo: 'ERRO_SINTATICO', linha: 1, coluna: 8, encontrado: 'fim do código',
+      esperado: ['identificador', 'número', 'string', '('],
+    });
+  });
+
+  it('GET /api/gramatica devolve a tabela M', async () => {
+    const g = await (await fetch(URL_BACKEND + '/api/gramatica')).json();
+    expect(g.ll1).toBe(true);
+    expect(g.tabela.FATOR['(']).toBe(16);
   });
 
   it.each([
@@ -132,7 +192,7 @@ rodar('Integração: contrato HTTP real (cabeçalhos, status e corpo)', () => {
     ['corpo que não é JSON', 'isto não é json', 400, 'CORPO_INVALIDO'],
     ['corpo vazio', '', 400, 'CORPO_INVALIDO'],
     ['lista JSON', '[1,2]', 400, 'CORPO_INVALIDO'],
-  ])('erro (%s), no formato padrão', async (_n, corpo, status, codigo) => {
+  ])('erro (%s) → HTTP %i %s, no formato padrão', async (_n, corpo, status, codigo) => {
     const r = await post(corpo);
     expect(r.status).toBe(status);
     expect(r.headers.get('content-type')).toMatch(/application\/json/);
@@ -155,39 +215,5 @@ rodar('Integração: contrato HTTP real (cabeçalhos, status e corpo)', () => {
   it('rotas anteriores continuam disponíveis', async () => {
     expect(await (await fetch(URL_BACKEND + '/api/health')).json()).toEqual({ status: 'ok' });
     expect(await (await fetch(URL_BACKEND + '/api/hello')).json()).toEqual({ message: 'Hello, World!' });
-  });
-});
-
-rodar('Integração: análise léxica no backend real', () => {
-  it('código válido: sucesso true, tokens com posição e nenhum erro', async () => {
-    const r = await post(JSON.stringify({ codigo: 'numero = 10\n' }));
-    const d = await r.json();
-    expect(d.sucesso).toBe(true);
-    expect(d.erros).toEqual([]);
-    expect(d.tokens.map((t) => [t.tipo, t.lexema, t.linha, t.coluna])).toEqual([
-      ['IDENTIFICADOR', 'numero', 1, 1], ['OPERADOR', '=', 1, 8],
-      ['LITERAL_INTEIRO', '10', 1, 10], ['QUEBRA_DE_LINHA', '\n', 1, 12],
-    ]);
-  });
-
-  it('erro léxico: HTTP 200 com sucesso false, erro localizado e tokens válidos mantidos', async () => {
-    const r = await post(JSON.stringify({ codigo: 'a = 1 @ 2' }));
-    expect(r.status).toBe(200);
-    const d = await r.json();
-    expect(d.sucesso).toBe(false);
-    expect(d.erros).toEqual([{ tipo: 'ERRO_LEXICO', lexema: '@', linha: 1, coluna: 7, mensagem: "Caractere não reconhecido: '@'" }]);
-    expect(d.tokens.length).toBe(4);
-  });
-
-  it('a interface exibe tokens e o erro léxico vindos do backend real', async () => {
-    const t = await carregar({ fetchImpl: fetchReal(URL_BACKEND) });
-    t.digitar('a = 1 @ 2\n');
-    t.analisar.click();
-    await aguardarResposta(t);
-    expect(t.resultados.dataset.estado).toBe('erro');
-    expect(t.resultados.textContent).toMatch(/Caractere não reconhecido: '@'/);
-    expect(t.d.querySelector('.tabela-tokens')).not.toBeNull();
-    expect(t.d.querySelector('.tok-erro').textContent).toBe('@');
-    expect(t.d.getElementById('eco-codigo').textContent).toBe('a = 1 @ 2\n');
   });
 });

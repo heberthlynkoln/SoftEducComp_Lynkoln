@@ -1,0 +1,342 @@
+{
+ "simbolo_inicial": "PROGRAMA",
+ "nao_terminais": [
+  "PROGRAMA",
+  "LISTA_ATRIB",
+  "ATRIB",
+  "EXPR",
+  "EXPR'",
+  "TERMO",
+  "TERMO'",
+  "FATOR"
+ ],
+ "terminais": [
+  {
+   "simbolo": "identificador",
+   "descricao": "identificador",
+   "token": "IDENTIFICADOR"
+  },
+  {
+   "simbolo": "numero",
+   "descricao": "número",
+   "token": "LITERAL_INTEIRO ou LITERAL_REAL"
+  },
+  {
+   "simbolo": "string",
+   "descricao": "string",
+   "token": "LITERAL_STRING"
+  },
+  {
+   "simbolo": "=",
+   "descricao": "'='",
+   "token": "OPERADOR_ATRIBUICAO com lexema ="
+  },
+  {
+   "simbolo": "+",
+   "descricao": "'+'",
+   "token": "OPERADOR_ARITMETICO com lexema +"
+  },
+  {
+   "simbolo": "-",
+   "descricao": "'-'",
+   "token": "OPERADOR_ARITMETICO com lexema -"
+  },
+  {
+   "simbolo": "*",
+   "descricao": "'*'",
+   "token": "OPERADOR_ARITMETICO com lexema *"
+  },
+  {
+   "simbolo": "/",
+   "descricao": "'/'",
+   "token": "OPERADOR_ARITMETICO com lexema /"
+  },
+  {
+   "simbolo": "(",
+   "descricao": "'('",
+   "token": "DELIMITADOR com lexema ("
+  },
+  {
+   "simbolo": ")",
+   "descricao": "')'",
+   "token": "DELIMITADOR com lexema )"
+  },
+  {
+   "simbolo": "NOVA_LINHA",
+   "descricao": "fim da linha",
+   "token": "QUEBRA_DE_LINHA (ou o fim do código, se a última linha não terminar com quebra)"
+  },
+  {
+   "simbolo": "$",
+   "descricao": "fim do código",
+   "token": "fim da entrada (não é um token do scanner)"
+  }
+ ],
+ "producoes": [
+  {
+   "numero": 1,
+   "esquerda": "PROGRAMA",
+   "direita": [
+    "LISTA_ATRIB"
+   ],
+   "texto": "PROGRAMA → LISTA_ATRIB"
+  },
+  {
+   "numero": 2,
+   "esquerda": "LISTA_ATRIB",
+   "direita": [
+    "ATRIB",
+    "LISTA_ATRIB"
+   ],
+   "texto": "LISTA_ATRIB → ATRIB LISTA_ATRIB"
+  },
+  {
+   "numero": 3,
+   "esquerda": "LISTA_ATRIB",
+   "direita": [],
+   "texto": "LISTA_ATRIB → ε"
+  },
+  {
+   "numero": 4,
+   "esquerda": "ATRIB",
+   "direita": [
+    "identificador",
+    "=",
+    "EXPR",
+    "NOVA_LINHA"
+   ],
+   "texto": "ATRIB → identificador = EXPR NOVA_LINHA"
+  },
+  {
+   "numero": 5,
+   "esquerda": "EXPR",
+   "direita": [
+    "TERMO",
+    "EXPR'"
+   ],
+   "texto": "EXPR → TERMO EXPR'"
+  },
+  {
+   "numero": 6,
+   "esquerda": "EXPR'",
+   "direita": [
+    "+",
+    "TERMO",
+    "EXPR'"
+   ],
+   "texto": "EXPR' → + TERMO EXPR'"
+  },
+  {
+   "numero": 7,
+   "esquerda": "EXPR'",
+   "direita": [
+    "-",
+    "TERMO",
+    "EXPR'"
+   ],
+   "texto": "EXPR' → - TERMO EXPR'"
+  },
+  {
+   "numero": 8,
+   "esquerda": "EXPR'",
+   "direita": [],
+   "texto": "EXPR' → ε"
+  },
+  {
+   "numero": 9,
+   "esquerda": "TERMO",
+   "direita": [
+    "FATOR",
+    "TERMO'"
+   ],
+   "texto": "TERMO → FATOR TERMO'"
+  },
+  {
+   "numero": 10,
+   "esquerda": "TERMO'",
+   "direita": [
+    "*",
+    "FATOR",
+    "TERMO'"
+   ],
+   "texto": "TERMO' → * FATOR TERMO'"
+  },
+  {
+   "numero": 11,
+   "esquerda": "TERMO'",
+   "direita": [
+    "/",
+    "FATOR",
+    "TERMO'"
+   ],
+   "texto": "TERMO' → / FATOR TERMO'"
+  },
+  {
+   "numero": 12,
+   "esquerda": "TERMO'",
+   "direita": [],
+   "texto": "TERMO' → ε"
+  },
+  {
+   "numero": 13,
+   "esquerda": "FATOR",
+   "direita": [
+    "identificador"
+   ],
+   "texto": "FATOR → identificador"
+  },
+  {
+   "numero": 14,
+   "esquerda": "FATOR",
+   "direita": [
+    "numero"
+   ],
+   "texto": "FATOR → numero"
+  },
+  {
+   "numero": 15,
+   "esquerda": "FATOR",
+   "direita": [
+    "string"
+   ],
+   "texto": "FATOR → string"
+  },
+  {
+   "numero": 16,
+   "esquerda": "FATOR",
+   "direita": [
+    "(",
+    "EXPR",
+    ")"
+   ],
+   "texto": "FATOR → ( EXPR )"
+  }
+ ],
+ "first": {
+  "PROGRAMA": [
+   "identificador",
+   "ε"
+  ],
+  "LISTA_ATRIB": [
+   "identificador",
+   "ε"
+  ],
+  "ATRIB": [
+   "identificador"
+  ],
+  "EXPR": [
+   "identificador",
+   "numero",
+   "string",
+   "("
+  ],
+  "EXPR'": [
+   "+",
+   "-",
+   "ε"
+  ],
+  "TERMO": [
+   "identificador",
+   "numero",
+   "string",
+   "("
+  ],
+  "TERMO'": [
+   "*",
+   "/",
+   "ε"
+  ],
+  "FATOR": [
+   "identificador",
+   "numero",
+   "string",
+   "("
+  ]
+ },
+ "follow": {
+  "PROGRAMA": [
+   "$"
+  ],
+  "LISTA_ATRIB": [
+   "$"
+  ],
+  "ATRIB": [
+   "identificador",
+   "$"
+  ],
+  "EXPR": [
+   ")",
+   "NOVA_LINHA"
+  ],
+  "EXPR'": [
+   ")",
+   "NOVA_LINHA"
+  ],
+  "TERMO": [
+   "+",
+   "-",
+   ")",
+   "NOVA_LINHA"
+  ],
+  "TERMO'": [
+   "+",
+   "-",
+   ")",
+   "NOVA_LINHA"
+  ],
+  "FATOR": [
+   "+",
+   "-",
+   "*",
+   "/",
+   ")",
+   "NOVA_LINHA"
+  ]
+ },
+ "tabela": {
+  "PROGRAMA": {
+   "identificador": 1,
+   "$": 1
+  },
+  "LISTA_ATRIB": {
+   "identificador": 2,
+   "$": 3
+  },
+  "ATRIB": {
+   "identificador": 4
+  },
+  "EXPR": {
+   "identificador": 5,
+   "numero": 5,
+   "string": 5,
+   "(": 5
+  },
+  "EXPR'": {
+   "+": 6,
+   "-": 7,
+   ")": 8,
+   "NOVA_LINHA": 8
+  },
+  "TERMO": {
+   "identificador": 9,
+   "numero": 9,
+   "string": 9,
+   "(": 9
+  },
+  "TERMO'": {
+   "+": 12,
+   "-": 12,
+   "*": 10,
+   "/": 11,
+   ")": 12,
+   "NOVA_LINHA": 12
+  },
+  "FATOR": {
+   "identificador": 13,
+   "numero": 14,
+   "string": 15,
+   "(": 16
+  }
+ },
+ "ll1": true
+}

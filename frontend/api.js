@@ -2,28 +2,40 @@
 // Concentra o acesso HTTP para que app.js só se preocupe em exibir resultados.
 //
 // enviarCodigo(codigo) sempre RESOLVE (nunca lança) com um destes objetos:
-//   { tipo: 'sucesso',   dados }                  HTTP 200 no formato do contrato (inclui tokens e erros léxicos;
-//                                                 `dados.sucesso` é false quando há erros léxicos)
+//   { tipo: 'sucesso',   dados }                  HTTP 200 no formato do contrato
 //   { tipo: 'rejeitado', status, erro }           erro no formato padrão (400, 413, 422...)
 //   { tipo: 'falha',     motivo, status? }        motivo: 'rede' | 'tempo' | 'http' | 'resposta-invalida'
+//
+// obterGramatica() resolve com { tipo: 'sucesso', dados } ou { tipo: 'falha', motivo } (GET /api/gramatica).
 (function () {
   const TEMPO_LIMITE_PADRAO_MS = 10000;
   const ROTA_ANALISAR = '/api/analisar';
+  const ROTA_GRAMATICA = '/api/gramatica';
 
   const ehObjeto = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
-  const ehToken = (t) => ehObjeto(t) && typeof t.tipo === 'string' && typeof t.lexema === 'string' &&
-    Number.isInteger(t.linha) && Number.isInteger(t.coluna);
-  const ehErroLexico = (e) => ehToken(e) && typeof e.mensagem === 'string';
+  const lista = Array.isArray;
+  const bool = (v) => typeof v === 'boolean';
+
+  // Resultado da análise léxica: { sucesso, tokens: [...], erros: [...] }
+  function lexicoValido(l) {
+    return ehObjeto(l) && bool(l.sucesso) && lista(l.tokens) && lista(l.erros) &&
+      l.tokens.every((t) => ehObjeto(t) && typeof t.tipo === 'string' && typeof t.lexema === 'string' &&
+        Number.isInteger(t.linha) && Number.isInteger(t.coluna));
+  }
+
+  // Resultado da análise sintática: { executado, sucesso, ast|null, erros: [...], passos?: [...] }
+  function sintaticoValido(s) {
+    return ehObjeto(s) && bool(s.executado) && bool(s.sucesso) && lista(s.erros) &&
+      (s.ast === null || ehObjeto(s.ast)) && (s.passos === undefined || lista(s.passos)) &&
+      (!s.sucesso || s.executado);
+  }
 
   function respostaSucessoValida(d) {
     return ehObjeto(d) && d.recebido === true && typeof d.mensagem === 'string' &&
       typeof d.codigo === 'string' && ehObjeto(d.estatisticas) &&
       ['linhas', 'caracteres', 'bytes'].every((k) => Number.isInteger(d.estatisticas[k])) &&
-      typeof d.sucesso === 'boolean' &&
-      Array.isArray(d.tokens) && d.tokens.every(ehToken) &&
-      Array.isArray(d.erros) && d.erros.every(ehErroLexico) &&
-      d.sucesso === (d.erros.length === 0);   // sucesso só quando não há erros léxicos
+      bool(d.sucesso) && lexicoValido(d.lexico) && sintaticoValido(d.sintatico);
   }
 
   function erroPadronizado(d) {
@@ -62,5 +74,27 @@
     }
   }
 
-  window.ApiCompiladores = { enviarCodigo, ROTA_ANALISAR };
+  let gramaticaEmCache = null;
+  async function obterGramatica(opcoes = {}) {
+    if (gramaticaEmCache) return gramaticaEmCache;
+    const config = window.APP_CONFIG || {};
+    const controle = new window.AbortController();
+    const temporizador = setTimeout(() => controle.abort(),
+      opcoes.tempoLimiteMs || config.tempoLimiteMs || TEMPO_LIMITE_PADRAO_MS);
+    try {
+      const resp = await window.fetch(ROTA_GRAMATICA, { signal: controle.signal });
+      const corpo = resp.ok ? await resp.json() : undefined;
+      if (resp.ok && ehObjeto(corpo) && ehObjeto(corpo.tabela) && lista(corpo.producoes)) {
+        gramaticaEmCache = { tipo: 'sucesso', dados: corpo };
+        return gramaticaEmCache;
+      }
+      return { tipo: 'falha', motivo: resp.ok ? 'resposta-invalida' : 'http', status: resp.status };
+    } catch (e) {
+      return { tipo: 'falha', motivo: controle.signal.aborted ? 'tempo' : 'rede' };
+    } finally {
+      clearTimeout(temporizador);
+    }
+  }
+
+  window.ApiCompiladores = { enviarCodigo, obterGramatica, ROTA_ANALISAR, ROTA_GRAMATICA };
 })();

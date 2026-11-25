@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 1180" width="820" height="1180" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="14">
+  <title>Fluxo de processamento do Visualizador de Análise Sintática</title>
+  <defs>
+    <marker id="seta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#33413f"/>
+    </marker>
+    <style>
+      .ok   { fill: #e3f3ea; stroke: #1b6b4a; stroke-width: 2; }
+      .dec  { fill: #fff6df; stroke: #8a5a00; stroke-width: 2; }
+      .err  { fill: #fbe9e9; stroke: #a12c2c; stroke-width: 2; }
+      .pend { fill: #f2f2f2; stroke: #7d8786; stroke-width: 2; stroke-dasharray: 7 5; }
+      .ext  { fill: #e6eff7; stroke: #1f5f8b; stroke-width: 2; }
+      .lin  { stroke: #33413f; stroke-width: 1.8; fill: none; marker-end: url(#seta); }
+      .lin0 { stroke: #33413f; stroke-width: 1.8; fill: none; }
+      .linp { stroke: #7d8786; stroke-width: 1.8; fill: none; stroke-dasharray: 6 5; marker-end: url(#seta); }
+      .t    { fill: #1d2b2a; text-anchor: middle; }
+      .b    { font-weight: 700; }
+      .p    { font-size: 12px; fill: #4a5655; text-anchor: middle; }
+      .r    { font-size: 12.5px; font-weight: 700; fill: #33413f; }
+    </style>
+  </defs>
+
+  <!-- 1. usuário -->
+  <rect class="ext" x="260" y="20" width="300" height="56" rx="28"/>
+  <text class="t b" x="410" y="44">Usuário digita ou escolhe</text>
+  <text class="t b" x="410" y="63">um exemplo e clica em Analisar</text>
+  <path class="lin" d="M410 76 V108"/>
+
+  <!-- 2. validação frontend -->
+  <rect class="ok" x="250" y="110" width="320" height="56" rx="8"/>
+  <text class="t b" x="410" y="134">Validação na interface</text>
+  <text class="p" x="410" y="153">vazio · só espaços · limite de 100.000 caracteres</text>
+  <path class="lin" d="M570 138 H640"/>
+  <rect class="err" x="642" y="112" width="160" height="52" rx="8"/>
+  <text class="t" x="722" y="134" font-size="13">mensagem na tela</text>
+  <text class="p" x="722" y="152">(nada é enviado)</text>
+  <text class="r" x="583" y="130">inválido</text>
+  <path class="lin" d="M410 166 V198"/>
+  <text class="r" x="418" y="188">POST /api/analisar</text>
+
+  <!-- 3. validação backend -->
+  <rect class="ok" x="250" y="200" width="320" height="56" rx="8"/>
+  <text class="t b" x="410" y="224">Validação no backend</text>
+  <text class="p" x="410" y="243">mesmas regras + texto não codificável</text>
+  <path class="lin" d="M570 228 H640"/>
+  <rect class="err" x="642" y="202" width="160" height="52" rx="8"/>
+  <text class="t" x="722" y="224" font-size="13">HTTP 422 / 413</text>
+  <text class="p" x="722" y="242">erro padronizado</text>
+  <text class="r" x="583" y="220">inválido</text>
+  <path class="lin" d="M410 256 V288"/>
+
+  <!-- 4. scanner -->
+  <rect class="ok" x="250" y="290" width="320" height="64" rx="8"/>
+  <text class="t b" x="410" y="314">Análise léxica (scanner)</text>
+  <text class="p" x="410" y="333">tokens (tipo, lexema, linha, coluna)</text>
+  <text class="p" x="410" y="348">e erros léxicos</text>
+  <path class="lin" d="M410 354 V386"/>
+
+  <!-- decisão erro léxico -->
+  <polygon class="dec" points="410,388 520,438 410,488 300,438"/>
+  <text class="t b" x="410" y="434">Há erro</text>
+  <text class="t b" x="410" y="452">léxico?</text>
+  <path class="lin" d="M520 438 H640"/>
+  <text class="r" x="560" y="430">sim</text>
+  <rect class="err" x="642" y="400" width="160" height="76" rx="8"/>
+  <text class="t" x="722" y="424" font-size="13">erros léxicos</text>
+  <text class="p" x="722" y="442">parser NÃO executado</text>
+  <text class="p" x="722" y="458">(decisão D1)</text>
+  <path class="lin" d="M410 488 V520"/>
+  <text class="r" x="418" y="510">não</text>
+
+  <!-- 5. parser -->
+  <rect class="ok" x="230" y="522" width="360" height="64" rx="8"/>
+  <text class="t b" x="410" y="546">Análise sintática (parser LL(1))</text>
+  <text class="p" x="410" y="565">pilha + tabela M · ações semânticas</text>
+  <text class="p" x="410" y="580">registra o passo a passo</text>
+  <path class="lin" d="M410 586 V618"/>
+
+  <!-- decisão erro sintático -->
+  <polygon class="dec" points="410,620 520,670 410,720 300,670"/>
+  <text class="t b" x="410" y="666">Célula vazia</text>
+  <text class="t b" x="410" y="684">ou não casou?</text>
+  <path class="lin" d="M520 670 H640"/>
+  <text class="r" x="560" y="662">sim</text>
+  <rect class="err" x="642" y="618" width="160" height="104" rx="8"/>
+  <text class="t" x="722" y="640" font-size="13">1º erro sintático</text>
+  <text class="p" x="722" y="658">posição, encontrado,</text>
+  <text class="p" x="722" y="674">esperados (tabela M),</text>
+  <text class="p" x="722" y="690">explicação e regra;</text>
+  <text class="p" x="722" y="706">árvore parcial (D4)</text>
+  <path class="lin" d="M410 720 V752"/>
+  <text class="r" x="418" y="742">não</text>
+
+  <!-- 6. AST -->
+  <rect class="ok" x="250" y="754" width="320" height="56" rx="8"/>
+  <text class="t b" x="410" y="778">AST construída</text>
+  <text class="p" x="410" y="797">nós com tipo, regra, posição e atributos</text>
+  <path class="linp" d="M410 810 V842"/>
+
+  <!-- 7. semântica (pendente) -->
+  <rect class="pend" x="250" y="844" width="320" height="56" rx="8"/>
+  <text class="t b" x="410" y="868" fill="#5d6b6a">Análise semântica</text>
+  <text class="p" x="410" y="887">tabela de símbolos — Etapa 5 (pendente)</text>
+  <path class="linp" d="M410 900 V940"/>
+
+  <!-- setas laterais para a resposta -->
+  <path class="lin" d="M722 476 V500 H790 V960 H572"/>
+  <path class="lin0" d="M722 722 V740 H790"/>
+
+  <!-- 8. resposta -->
+  <rect class="ok" x="250" y="942" width="320" height="56" rx="8"/>
+  <text class="t b" x="410" y="966">Resposta JSON (HTTP 200)</text>
+  <text class="p" x="410" y="985">lexico · sintatico (ast, erros, passos)</text>
+  <path class="lin" d="M410 998 V1030"/>
+
+  <!-- 9. interface -->
+  <rect class="ext" x="170" y="1032" width="480" height="84" rx="12"/>
+  <text class="t b" x="410" y="1056">Apresentação na interface</text>
+  <text class="p" x="410" y="1076">erros por fase (léxico | sintático) · código com tokens destacados</text>
+  <text class="p" x="410" y="1092">AST navegável com destaque no código · tabela de tokens</text>
+  <text class="p" x="410" y="1108">passo a passo (pilha, entrada, ação) · gramática e tabela M</text>
+
+  <!-- legenda -->
+  <rect class="ok" x="20" y="1140" width="22" height="16" rx="3"/><text x="50" y="1153" font-size="12">implementado</text>
+  <rect class="dec" x="150" y="1140" width="22" height="16" rx="3"/><text x="180" y="1153" font-size="12">decisão</text>
+  <rect class="err" x="255" y="1140" width="22" height="16" rx="3"/><text x="285" y="1153" font-size="12">retorno de erro ao usuário</text>
+  <rect class="pend" x="460" y="1140" width="22" height="16" rx="3"/><text x="490" y="1153" font-size="12">pendente (Etapa 5)</text>
+  <rect class="ext" x="625" y="1140" width="22" height="16" rx="3"/><text x="655" y="1153" font-size="12">usuário / interface</text>
+</svg>

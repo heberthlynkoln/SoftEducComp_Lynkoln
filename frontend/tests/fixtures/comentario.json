@@ -1,0 +1,113 @@
+{
+ "recebido": true,
+ "mensagem": "Código recebido com sucesso.",
+ "codigo": "# só comentário\n",
+ "estatisticas": {
+  "linhas": 1,
+  "caracteres": 16,
+  "bytes": 18
+ },
+ "sucesso": true,
+ "lexico": {
+  "sucesso": true,
+  "tokens": [],
+  "erros": []
+ },
+ "sintatico": {
+  "executado": true,
+  "sucesso": true,
+  "ast": {
+   "id": "n1",
+   "tipo": "PROGRAMA",
+   "rotulo": "Programa",
+   "linha": 1,
+   "coluna": 1,
+   "linha_fim": 1,
+   "coluna_fim": 1,
+   "regra": "PROGRAMA → LISTA_ATRIB; LISTA_ATRIB → ATRIB LISTA_ATRIB | ε",
+   "atributos": {
+    "quantidade_atribuicoes": 0
+   },
+   "filhos": []
+  },
+  "arvore_parcial": [],
+  "erros": [],
+  "avisos": [],
+  "estatisticas": {
+   "nos": 1,
+   "profundidade": 1
+  },
+  "passos": [
+   {
+    "numero": 1,
+    "tipo": "inicio",
+    "pilha": [
+     "$",
+     "PROGRAMA"
+    ],
+    "entrada": [
+     "$"
+    ],
+    "acao": "Início: a pilha contém $ e o símbolo inicial PROGRAMA.",
+    "producao": null,
+    "celula": null,
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 2,
+    "tipo": "expandir",
+    "pilha": [
+     "$",
+     "LISTA_ATRIB"
+    ],
+    "entrada": [
+     "$"
+    ],
+    "acao": "M[PROGRAMA, $] = 1: aplica PROGRAMA → LISTA_ATRIB.",
+    "producao": 1,
+    "celula": {
+     "nao_terminal": "PROGRAMA",
+     "terminal": "$"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 3,
+    "tipo": "expandir",
+    "pilha": [
+     "$"
+    ],
+    "entrada": [
+     "$"
+    ],
+    "acao": "M[LISTA_ATRIB, $] = 3: aplica LISTA_ATRIB → ε.",
+    "producao": 3,
+    "celula": {
+     "nao_terminal": "LISTA_ATRIB",
+     "terminal": "$"
+    },
+    "token": null,
+    "no_criado": null
+   },
+   {
+    "numero": 4,
+    "tipo": "aceitar",
+    "pilha": [
+     "$"
+    ],
+    "entrada": [
+     "$"
+    ],
+    "acao": "Topo $ e entrada $: a entrada foi aceita.",
+    "producao": null,
+    "celula": null,
+    "token": null,
+    "no_criado": null
+   }
+  ],
+  "passos_truncados": false,
+  "total_passos": 4
+ }
+}

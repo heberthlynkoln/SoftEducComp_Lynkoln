@@ -8,6 +8,20 @@ const raiz = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export const contarLinhas = (t) =>
   t === '' ? 0 : t.replace(/(\r\n|\r|\n)$/, '').split(/\r\n|\r|\n/).length;
 
+// Análise mínima válida (contrato de docs/API.md): sem tokens e com um PROGRAMA vazio.
+// Os testes que precisam de tokens/AST reais usam o backend real (integracao.test.js,
+// analise.test.js) ou respostas capturadas dele.
+export const analiseMinima = () => ({
+  sucesso: true,
+  lexico: { sucesso: true, tokens: [], erros: [] },
+  sintatico: {
+    executado: true, sucesso: true, erros: [], avisos: [], arvore_parcial: [], motivo: null,
+    ast: { id: 'n1', tipo: 'PROGRAMA', rotulo: 'Programa', linha: 1, coluna: 1, linha_fim: 1, coluna_fim: 1,
+      regra: 'PROGRAMA → LISTA_ATRIB', atributos: { quantidade_atribuicoes: 0 }, filhos: [] },
+    estatisticas: { nos: 1, profundidade: 1 }, passos: [], passos_truncados: false, total_passos: 0,
+  },
+});
+
 // Backend simulado (testes de unidade da interface): espelha o contrato de POST /api/analisar.
 // Opções: alterar (devolve código diferente), status (HTTP), corpo (corpo fixo para respostas de erro),
 // semJson (corpo que não é JSON, como a página de erro do Nginx).
@@ -27,13 +41,13 @@ export function backendSimulado(chamadas, { alterar = false, status = 200, corpo
     return Promise.resolve({
       ok: true, status: 200,
       json: async () => corpo !== undefined ? corpo : ({
-        recebido: true, sucesso: true, mensagem: 'Código recebido com sucesso.',
+        recebido: true, mensagem: 'Código recebido com sucesso.',
         codigo: alterar ? codigo + '!' : codigo,
         estatisticas: {
           linhas: contarLinhas(codigo), caracteres: codigo.length,
           bytes: new TextEncoder().encode(codigo).length,
         },
-        tokens: [], erros: [],   // o backend simulado não faz análise léxica
+        ...analiseMinima(),
       }),
     });
   };
@@ -45,9 +59,9 @@ export const erroApi = (codigo, mensagem, detalhes = []) =>
 
 // Resposta 200 mínima válida, para testes que controlam o fetch manualmente.
 export const sucessoApi = (codigo) => ({
-  recebido: true, sucesso: true, mensagem: 'Código recebido com sucesso.', codigo,
+  recebido: true, mensagem: 'Código recebido com sucesso.', codigo,
   estatisticas: { linhas: contarLinhas(codigo), caracteres: codigo.length, bytes: codigo.length },
-  tokens: [], erros: [],
+  ...analiseMinima(),
 });
 
 export class ArmazenamentoFalso {

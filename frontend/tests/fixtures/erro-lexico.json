@@ -1,0 +1,93 @@
+{
+ "recebido": true,
+ "mensagem": "Código recebido com sucesso.",
+ "codigo": "a = 1 @ 2\nb = 3\n",
+ "estatisticas": {
+  "linhas": 2,
+  "caracteres": 16,
+  "bytes": 16
+ },
+ "sucesso": false,
+ "lexico": {
+  "sucesso": false,
+  "tokens": [
+   {
+    "tipo": "IDENTIFICADOR",
+    "lexema": "a",
+    "linha": 1,
+    "coluna": 1
+   },
+   {
+    "tipo": "OPERADOR_ATRIBUICAO",
+    "lexema": "=",
+    "linha": 1,
+    "coluna": 3
+   },
+   {
+    "tipo": "LITERAL_INTEIRO",
+    "lexema": "1",
+    "linha": 1,
+    "coluna": 5
+   },
+   {
+    "tipo": "LITERAL_INTEIRO",
+    "lexema": "2",
+    "linha": 1,
+    "coluna": 9
+   },
+   {
+    "tipo": "QUEBRA_DE_LINHA",
+    "lexema": "\n",
+    "linha": 1,
+    "coluna": 10
+   },
+   {
+    "tipo": "IDENTIFICADOR",
+    "lexema": "b",
+    "linha": 2,
+    "coluna": 1
+   },
+   {
+    "tipo": "OPERADOR_ATRIBUICAO",
+    "lexema": "=",
+    "linha": 2,
+    "coluna": 3
+   },
+   {
+    "tipo": "LITERAL_INTEIRO",
+    "lexema": "3",
+    "linha": 2,
+    "coluna": 5
+   },
+   {
+    "tipo": "QUEBRA_DE_LINHA",
+    "lexema": "\n",
+    "linha": 2,
+    "coluna": 6
+   }
+  ],
+  "erros": [
+   {
+    "tipo": "ERRO_LEXICO",
+    "codigo": "CARACTERE_INVALIDO",
+    "lexema": "@",
+    "linha": 1,
+    "coluna": 7,
+    "mensagem": "O caractere '@' não pertence ao alfabeto da linguagem analisada (o operador @ não faz parte do subconjunto)."
+   }
+  ]
+ },
+ "sintatico": {
+  "executado": false,
+  "sucesso": false,
+  "ast": null,
+  "arvore_parcial": [],
+  "erros": [],
+  "avisos": [],
+  "motivo": "A análise sintática não foi executada porque há erros léxicos. Corrija-os primeiro: com tokens inválidos, o parser produziria erros que não existem no código original.",
+  "estatisticas": null,
+  "passos": [],
+  "passos_truncados": false,
+  "total_passos": 0
+ }
+}
