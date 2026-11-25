@@ -1,148 +1,210 @@
-"""Analisador léxico (scanner) do subconjunto de Python aceito pelo visualizador.
+"""Analisador léxico (scanner) do subconjunto de Python.
 
-Lê o texto-fonte caractere a caractere, agrupa os caracteres em lexemas e
-classifica cada lexema em um tipo de token, registrando linha e coluna (base 1).
+Transforma o código-fonte em uma lista de tokens (tipo, lexema, linha, coluna) e
+uma lista de erros léxicos. O scanner reconhece MAIS do que o parser aceita
+(palavras reservadas, operadores relacionais e compostos, delimitadores extras):
+um token válido não significa uma construção válida, e a recusa de estruturas
+fora do subconjunto é tarefa do parser (docs/ANALISE-LEXICA.md).
 
-Erros léxicos não interrompem a análise: são acumulados e o scanner segue em
-frente, para que o usuário veja todos os problemas de uma vez.
+Convenções de posição:
+  * linhas e colunas começam em 1;
+  * a coluna conta pontos de código Unicode (um acento ou um emoji contam 1;
+    uma tabulação conta 1);
+  * \\n, \\r\\n e \\r terminam uma linha (a mesma regra de contar_linhas).
 
-Usa apenas a biblioteca padrão. O escopo está documentado em docs/ANALISE-LEXICA.md.
+Implementação manual, só com a biblioteca padrão (re, keyword), para que cada
+regra fique visível ao estudante. O código nunca é executado.
 """
 import keyword
 import re
 
-# ---------------------------------------------------------------- tipos de token
+# ------------------------------------------------------------ categorias
 PALAVRA_RESERVADA = "PALAVRA_RESERVADA"
 IDENTIFICADOR = "IDENTIFICADOR"
 LITERAL_INTEIRO = "LITERAL_INTEIRO"
 LITERAL_REAL = "LITERAL_REAL"
 LITERAL_STRING = "LITERAL_STRING"
-OPERADOR = "OPERADOR"
+OPERADOR_ARITMETICO = "OPERADOR_ARITMETICO"
+OPERADOR_ATRIBUICAO = "OPERADOR_ATRIBUICAO"
+OPERADOR_RELACIONAL = "OPERADOR_RELACIONAL"
 DELIMITADOR = "DELIMITADOR"
 QUEBRA_DE_LINHA = "QUEBRA_DE_LINHA"
-ERRO_LEXICO = "ERRO_LEXICO"
 
-TIPOS_DE_TOKEN = (
-    PALAVRA_RESERVADA, IDENTIFICADOR, LITERAL_INTEIRO, LITERAL_REAL,
-    LITERAL_STRING, OPERADOR, DELIMITADOR, QUEBRA_DE_LINHA,
-)
+CATEGORIAS = [
+    PALAVRA_RESERVADA, IDENTIFICADOR, LITERAL_INTEIRO, LITERAL_REAL, LITERAL_STRING,
+    OPERADOR_ARITMETICO, OPERADOR_ATRIBUICAO, OPERADOR_RELACIONAL, DELIMITADOR, QUEBRA_DE_LINHA,
+]
 
-# ------------------------------------------------------------------- vocabulário
-# Palavras reservadas: as do próprio Python (inclui and, or, not, True, None...).
+# Códigos de erro léxico (campo "codigo" de cada erro)
+CARACTERE_INVALIDO = "CARACTERE_INVALIDO"
+NUMERO_MALFORMADO = "NUMERO_MALFORMADO"
+STRING_NAO_FECHADA = "STRING_NAO_FECHADA"
+STRING_NAO_SUPORTADA = "STRING_NAO_SUPORTADA"
+
+# Palavras reservadas do interpretador em uso (Python 3.12 no contêiner).
+# As "soft keywords" (match, case, type, _) continuam sendo identificadores, como no Python.
 PALAVRAS_RESERVADAS = frozenset(keyword.kwlist)
 
-# Operadores reconhecidos. Ordenados do mais longo para o mais curto na regex,
-# para que "**=" seja lido antes de "**" e "*".
-OPERADORES = (
-    "**=", "//=", "<<=", ">>=",                 # atribuição composta
-    "**", "//", "<<", ">>", "==", "!=", "<=", ">=", "->", ":=",
-    "+=", "-=", "*=", "/=", "%=",
-    "+", "-", "*", "/", "%", "<", ">", "=",
-)
-DELIMITADORES = frozenset("()[]{},:;.")
+# Operadores e delimitadores, do mais longo para o mais curto (casamento mais longo).
+SIMBOLOS = [
+    ("**=", OPERADOR_ATRIBUICAO), ("//=", OPERADOR_ATRIBUICAO),
+    ("+=", OPERADOR_ATRIBUICAO), ("-=", OPERADOR_ATRIBUICAO), ("*=", OPERADOR_ATRIBUICAO),
+    ("/=", OPERADOR_ATRIBUICAO), ("%=", OPERADOR_ATRIBUICAO),
+    ("==", OPERADOR_RELACIONAL), ("!=", OPERADOR_RELACIONAL),
+    ("<=", OPERADOR_RELACIONAL), (">=", OPERADOR_RELACIONAL),
+    ("**", OPERADOR_ARITMETICO), ("//", OPERADOR_ARITMETICO),
+    ("<", OPERADOR_RELACIONAL), (">", OPERADOR_RELACIONAL),
+    ("+", OPERADOR_ARITMETICO), ("-", OPERADOR_ARITMETICO), ("*", OPERADOR_ARITMETICO),
+    ("/", OPERADOR_ARITMETICO), ("%", OPERADOR_ARITMETICO),
+    ("=", OPERADOR_ATRIBUICAO),
+    ("(", DELIMITADOR), (")", DELIMITADOR), ("[", DELIMITADOR), ("]", DELIMITADOR),
+    ("{", DELIMITADOR), ("}", DELIMITADOR), (",", DELIMITADOR), (":", DELIMITADOR),
+    (";", DELIMITADOR), (".", DELIMITADOR),
+]
 
-_DIGITOS = "0123456789"
-_ABERTURAS_DE_TEXTO = frozenset("\"'")
-
-# ------------------------------------------------------------------- expressões
-_QUEBRA = re.compile(r"\r\n|\r|\n")
-_ESPACOS = re.compile(r"[ \t\f]+")
-_COMENTARIO = re.compile(r"#[^\r\n]*")
-_IDENTIFICADOR = re.compile(r"[^\W\d]\w*")          # letra ou _ seguida de letras, dígitos ou _
-_REAL = re.compile(r"[0-9]+\.[0-9]+")
-_INTEIRO = re.compile(r"[0-9]+")
-_RESTO_NUMERO = re.compile(r"[\w.]*")               # sufixo que torna o número malformado
-_TEXTO = re.compile(r'"(?:[^"\\\r\n]|\\.)*"|\'(?:[^\'\\\r\n]|\\.)*\'')
-_RESTO_DA_LINHA = re.compile(r"[^\r\n]*")
-_OPERADOR = re.compile("|".join(re.escape(op) for op in sorted(OPERADORES, key=len, reverse=True)))
-
-
-# ------------------------------------------------------------------- utilitários
-def _token(tipo: str, lexema: str, linha: int, coluna: int) -> dict:
-    return {"tipo": tipo, "lexema": lexema, "linha": linha, "coluna": coluna}
+# Expressões regulares (ancoradas na posição atual com .match(texto, pos)).
+RE_IDENTIFICADOR = re.compile(r"[^\W\d]\w*")        # letra ou _ seguida de letras, dígitos ou _ (Unicode)
+RE_NUMERO = re.compile(r"\d+\.\d*|\.\d+|\d+")         # 10, 3.14, 5., .5 (sem notação científica)
+RE_CAUDA_NUMERO = re.compile(r"[\w.]+")               # o que "gruda" num número e o torna malformado
+RE_ESPACO = re.compile(r"[ \t\f]+")
+RE_QUEBRA = re.compile(r"\r\n|\r|\n")
 
 
-def _erro(lexema: str, linha: int, coluna: int, mensagem: str) -> dict:
-    return {"tipo": ERRO_LEXICO, "lexema": lexema, "linha": linha, "coluna": coluna, "mensagem": mensagem}
+def _erro(codigo, lexema, linha, coluna, mensagem):
+    return {"tipo": "ERRO_LEXICO", "codigo": codigo, "lexema": lexema,
+            "linha": linha, "coluna": coluna, "mensagem": mensagem}
 
 
-def _representar(ch: str) -> str:
-    """Caractere para mensagem: caracteres invisíveis aparecem escapados (ex.: \\x00)."""
-    return ch if ch.isprintable() else ascii(ch)[1:-1]
+def _mensagem_caractere(ch: str) -> str:
+    visivel = repr(ch)[1:-1] if not ch.isprintable() or ch.isspace() else ch
+    base = f"o caractere '{visivel}' não pertence ao alfabeto da linguagem analisada"
+    dicas = {
+        "@": " (o operador @ não faz parte do subconjunto)",
+        "&": " (operadores bit a bit não fazem parte do subconjunto)",
+        "|": " (operadores bit a bit não fazem parte do subconjunto)",
+        "^": " (operadores bit a bit não fazem parte do subconjunto)",
+        "~": " (operadores bit a bit não fazem parte do subconjunto)",
+        "\\": " (a continuação de linha com \\ não é suportada)",
+        "$": "", "?": "", "!": " (para 'diferente de' use !=)",
+        " ": " (espaço não separável: substitua por um espaço comum)",
+    }
+    return base + dicas.get(ch, "") + "."
 
 
-# ------------------------------------------------------------------- scanner
-def analisar_lexico(codigo: str) -> tuple[list[dict], list[dict]]:
-    """Devolve (tokens, erros) do código informado.
+def analisar_lexico(codigo: str) -> dict:
+    """Executa a análise léxica. Retorna {"sucesso", "tokens", "erros"}.
 
-    Espaços e comentários são descartados. Quebras de linha viram tokens
-    QUEBRA_DE_LINHA, pois a gramática usa a quebra para terminar atribuições.
+    Depois de um erro, o scanner pula o trecho inválido e continua, para relatar
+    todos os erros léxicos de uma vez.
     """
-    tokens: list[dict] = []
-    erros: list[dict] = []
-    pos = 0
-    linha = 1
-    inicio_linha = 0          # índice do primeiro caractere da linha atual
-    fim = len(codigo)
+    tokens, erros = [], []
+    pos, linha, inicio_linha = 0, 1, 0
+    n = len(codigo)
+    linha_tem_conteudo = False  # só emite QUEBRA_DE_LINHA depois de uma linha com tokens
 
-    while pos < fim:
-        coluna = pos - inicio_linha + 1
+    def coluna(p):
+        return p - inicio_linha + 1
+
+    def emitir(tipo, lexema, p):
+        nonlocal linha_tem_conteudo
+        tokens.append({"tipo": tipo, "lexema": lexema, "linha": linha, "coluna": coluna(p)})
+        linha_tem_conteudo = True
+
+    while pos < n:
         ch = codigo[pos]
 
-        if m := _QUEBRA.match(codigo, pos):
-            tokens.append(_token(QUEBRA_DE_LINHA, m.group(), linha, coluna))
+        # espaços e tabulações: separam tokens e são descartados
+        m = RE_ESPACO.match(codigo, pos)
+        if m:
+            pos = m.end()
+            continue
+
+        # quebra de linha: vira token só se a linha teve conteúdo (linhas em branco
+        # e linhas só com comentário não geram QUEBRA_DE_LINHA, como no Python)
+        m = RE_QUEBRA.match(codigo, pos)
+        if m:
+            if linha_tem_conteudo:
+                tokens.append({"tipo": QUEBRA_DE_LINHA, "lexema": m.group(), "linha": linha,
+                               "coluna": coluna(pos)})
             pos = m.end()
             linha += 1
             inicio_linha = pos
+            linha_tem_conteudo = False
+            continue
 
-        elif m := (_ESPACOS.match(codigo, pos) or _COMENTARIO.match(codigo, pos)):
-            pos = m.end()    # espaços e comentários são ignorados
+        # comentário: de # até o fim da linha, descartado
+        if ch == "#":
+            m = RE_QUEBRA.search(codigo, pos)
+            pos = m.start() if m else n
+            continue
 
-        elif m := _IDENTIFICADOR.match(codigo, pos):
+        # string entre aspas simples ou duplas, na mesma linha
+        if ch in "\"'":
+            if codigo.startswith(ch * 3, pos):
+                fim = RE_QUEBRA.search(codigo, pos)
+                trecho = codigo[pos:fim.start() if fim else n]
+                erros.append(_erro(STRING_NAO_SUPORTADA, trecho, linha, coluna(pos),
+                                   "Strings com três aspas (''' ou \"\"\") não fazem parte do subconjunto."))
+                pos = fim.start() if fim else n
+                continue
+            p = pos + 1
+            fechou = False
+            while p < n and codigo[p] not in "\r\n":
+                if codigo[p] == "\\" and p + 1 < n and codigo[p + 1] not in "\r\n":
+                    p += 2          # sequência de escape: \" não fecha a string
+                    continue
+                if codigo[p] == ch:
+                    fechou = True
+                    break
+                p += 1
+            if fechou:
+                emitir(LITERAL_STRING, codigo[pos:p + 1], pos)
+                pos = p + 1
+            else:
+                trecho = codigo[pos:p]
+                erros.append(_erro(STRING_NAO_FECHADA, trecho, linha, coluna(pos),
+                                   f"A string iniciada com {ch} não foi fechada antes do fim da linha."))
+                pos = p
+            continue
+
+        # número (inteiro ou real); se letras, dígitos, _ ou . "grudam" nele, é malformado
+        m = RE_NUMERO.match(codigo, pos)
+        if m:
+            fim = m.end()
+            cauda = RE_CAUDA_NUMERO.match(codigo, fim)
+            if cauda:
+                lexema = codigo[pos:cauda.end()]
+                dica = (" A notação científica não faz parte do subconjunto."
+                        if re.fullmatch(r"[\d.]+[eE][+-]?\d*", lexema) else
+                        " Um nome de variável não pode começar com dígito.")
+                erros.append(_erro(NUMERO_MALFORMADO, lexema, linha, coluna(pos),
+                                   f"'{lexema}' não é um número válido.{dica}"))
+                pos = cauda.end()
+                linha_tem_conteudo = True
+                continue
             lexema = m.group()
-            tipo = PALAVRA_RESERVADA if lexema in PALAVRAS_RESERVADAS else IDENTIFICADOR
-            tokens.append(_token(tipo, lexema, linha, coluna))
+            emitir(LITERAL_REAL if "." in lexema else LITERAL_INTEIRO, lexema, pos)
+            pos = fim
+            continue
+
+        # identificador ou palavra reservada
+        m = RE_IDENTIFICADOR.match(codigo, pos)
+        if m:
+            lexema = m.group()
+            emitir(PALAVRA_RESERVADA if lexema in PALAVRAS_RESERVADAS else IDENTIFICADOR, lexema, pos)
             pos = m.end()
+            continue
 
-        elif ch in _DIGITOS:
-            m = _REAL.match(codigo, pos) or _INTEIRO.match(codigo, pos)
-            resto = _RESTO_NUMERO.match(codigo, m.end())
-            if resto.end() > m.end():
-                # Ex.: 2x, 3.abc, 1.: o número colado a letras ou pontos não é um literal válido.
-                lexema = codigo[pos:resto.end()]
-                erros.append(_erro(lexema, linha, coluna, f"Número malformado: '{lexema}'"))
-                pos = resto.end()
-            else:
-                lexema = m.group()
-                tipo = LITERAL_REAL if "." in lexema else LITERAL_INTEIRO
-                tokens.append(_token(tipo, lexema, linha, coluna))
-                pos = m.end()
-
-        elif ch in _ABERTURAS_DE_TEXTO:
-            m = _TEXTO.match(codigo, pos)
-            if m:
-                tokens.append(_token(LITERAL_STRING, m.group(), linha, coluna))
-                pos = m.end()
-            else:
-                # Texto não fechado: o trecho vai até o fim da linha e a análise continua na linha seguinte.
-                fim_linha = _RESTO_DA_LINHA.match(codigo, pos).end()
-                lexema = codigo[pos:fim_linha]
-                erros.append(_erro(
-                    lexema, linha, coluna,
-                    f"String não fechada: falta a aspa {ch} para terminar o texto nesta linha",
-                ))
-                pos = fim_linha
-
-        elif m := _OPERADOR.match(codigo, pos):
-            tokens.append(_token(OPERADOR, m.group(), linha, coluna))
-            pos = m.end()
-
-        elif ch in DELIMITADORES:
-            tokens.append(_token(DELIMITADOR, ch, linha, coluna))
-            pos += 1
-
+        # operadores e delimitadores (casamento mais longo primeiro)
+        for simbolo, tipo in SIMBOLOS:
+            if codigo.startswith(simbolo, pos):
+                emitir(tipo, simbolo, pos)
+                pos += len(simbolo)
+                break
         else:
-            erros.append(_erro(ch, linha, coluna, f"Caractere não reconhecido: '{_representar(ch)}'"))
+            erros.append(_erro(CARACTERE_INVALIDO, ch, linha, coluna(pos), _mensagem_caractere(ch)[0].upper()
+                               + _mensagem_caractere(ch)[1:]))
             pos += 1
+            linha_tem_conteudo = True
 
-    return tokens, erros
+    return {"sucesso": not erros, "tokens": tokens, "erros": erros}

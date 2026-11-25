@@ -25,3 +25,20 @@ def test_codigos_de_erro_documentados_existem_no_codigo():
     for c in codigos:
         assert c in doc, f"{c} não está documentado"
         assert c in fonte, f"{c} não é emitido pelo backend"
+
+
+def test_codigos_de_erro_lexico_documentados_e_emitidos():
+    from pathlib import Path
+    raiz = Path(__file__).resolve().parents[2]
+    api = (raiz / "docs" / "API.md").read_text(encoding="utf-8")
+    lexica = (raiz / "docs" / "ANALISE-LEXICA.md").read_text(encoding="utf-8")
+    fonte = (raiz / "backend" / "scanner.py").read_text(encoding="utf-8")
+    for c in ["CARACTERE_INVALIDO", "NUMERO_MALFORMADO", "STRING_NAO_FECHADA", "STRING_NAO_SUPORTADA"]:
+        assert c in api and c in lexica and c in fonte, c
+
+
+def test_openapi_descreve_analise_e_gramatica(client):
+    esquema = client.get("/api/openapi.json").json()
+    assert "/api/gramatica" in esquema["paths"]
+    resp = esquema["components"]["schemas"]["RespostaRecebimento"]["properties"]
+    assert {"recebido", "mensagem", "codigo", "estatisticas", "sucesso", "lexico", "sintatico"} <= set(resp)

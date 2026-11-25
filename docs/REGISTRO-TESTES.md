@@ -1,64 +1,75 @@
-# Registro de testes — análise léxica (etapa 3 do roteiro)
+# Registro de testes
 
-Registro do que foi executado, dos resultados obtidos, das falhas encontradas e das correções feitas, conforme a orientação da etapa.
+Registro dos comandos executados, dos resultados, das falhas encontradas e das correções feitas. Quando algo não foi executado, aparece como **pendente**.
 
-Este registro distingue duas coisas:
+## Execução de 24/11/2026 — Etapa 4 (análise sintática e AST)
 
-- **Executado e aprovado:** rodado de fato, com resultado observado.
-- **Pendente:** escrito, mas **não executado**. Os comandos estão listados para serem rodados na máquina do desenvolvedor, com Docker e Node disponíveis.
+**Ambiente:** Linux, Python 3.13.18 (o contêiner usa 3.12; a lista de palavras reservadas é a mesma nas duas versões), FastAPI 0.142.2, pytest 8.3.4, Node.js 22.23.5, Vitest 2.1.9, jsdom 25. Navegador para a inspeção visual: Google Chrome (headless, via Playwright).
 
-## Ambiente da última revisão
+### Linha de base (antes de qualquer alteração)
 
-O registro abaixo foi feito em um ambiente **sem acesso à rede**. Isso impediu instalar FastAPI, Uvicorn, pytest, Vitest e jsdom. Por isso:
+| Comando | Resultado |
+|---|---|
+| `cd backend && python -m pytest` | 83 aprovados, **1 reprovado**: `test_erros.py::test_surrogate_isolado_e_422_e_nao_500` |
+| `cd frontend && npm test` | 193 aprovados |
 
-- O scanner (`scanner.py`) e a camada de processamento foram testados com um runner de desenvolvimento que executa as funções `test_*` dos arquivos reais (sem reimplementar nenhum teste). Ele **não substitui o pytest**.
-- Os testes que dependem de HTTP (`test_analise_lexica.py`, `test_analisar.py`, `test_erros.py`, `test_contrato.py`) e os de interface (`analise-lexica.test.js` e os demais de `frontend/tests/`) **não foram executados**.
+A falha da linha de base era **do próprio teste**: o cliente de teste não consegue serializar o caractere `\ud800` ao montar o JSON e lança `UnicodeEncodeError` antes de a requisição sair. Correção: o teste passou a enviar o corpo já serializado em bytes (`{"codigo": "x = \\ud800"}`), que é o que um navegador enviaria. O comportamento verificado (resposta 422 `CODIGO_INVALIDO`, e não 500) não mudou.
 
-## Executado
+### Resultado final
 
-| # | Verificação | Comando ou método | Resultado |
-|---|---|---|---|
-| 1 | Compilação dos arquivos Python (backend e testes) | `python3 -m py_compile backend/*.py backend/tests/*.py` | OK |
-| 2 | Sintaxe JavaScript (interface e testes) | `node --check frontend/*.js frontend/tests/*.js` | OK |
-| 3 | Sintaxe do script de integração | `bash -n scripts/verificar-integracao.sh` | OK |
-| 4 | Testes unitários do scanner (`test_scanner.py`) | runner de desenvolvimento sobre o arquivo real | 97 casos, 0 falhas |
-| 5 | Testes de processamento (`test_processamento.py`, inclui 2 novos) | mesmo runner | 26 casos, 0 falhas |
-| 6 | Classificação das respostas no `api.js` com o contrato novo | Node com `window` simulado | 8 de 8 corretas |
-| 7 | Exemplos da interface (`exemplos.js`) passam pelo scanner sem erro léxico | scanner sobre os 10 exemplos | 10 de 10 sem erro léxico |
-| 8 | Exemplos de `docs/ANALISE-LEXICA.md` (tokens, posições e erros) | scanner sobre os exemplos documentados | conferem com o documento |
-| 9 | Destaque do código no navegador simulado | função `destacarCodigo` extraída de `app.js`, aplicada a 12 casos reais | o texto destacado é idêntico ao original em 12 de 12, inclusive com emoji (caractere fora do BMP) |
+| Verificação | Comando | Resultado |
+|---|---|---|
+| Sintaxe Python | `python -m py_compile backend/*.py backend/tests/*.py` | OK |
+| Sintaxe JavaScript | `node --check frontend/*.js frontend/tests/*.js` | OK |
+| **Suíte do backend** | `cd backend && python -m pytest` | **247 aprovados, 0 reprovados, 0 ignorados** |
+| **Suíte do frontend** | `cd frontend && npm install && npm test` | **229 aprovados, 0 reprovados, 0 ignorados** (os 28 testes de integração rodaram com o backend real) |
+| Script de integração | `scripts/verificar-integracao.sh` | 17 de 17 OK, mas **contra um servidor substituto** (uvicorn + proxy Python que reproduz o `location /api/` do Nginx), e não contra os contêineres |
+| Docker Compose | `docker compose up --build` | **Pendente**: no ambiente usado, o acesso ao Docker Hub estava bloqueado (`python:3.12-slim` não pôde ser baixada). Não há dependências novas; o único ajuste nos Dockerfiles é a inclusão de `analise.js` no `COPY` do frontend |
+| Instalação limpa | seção "Como executar" do README | **Pendente** |
+| Teste em celular (C12) | roteiro de Materiais e Métodos | **Pendente** em aparelho real. Feita apenas a simulação em largura de 390 px no Chrome (ver abaixo) |
 
-## Falhas encontradas durante a revisão e correções
+### Testes por arquivo
 
-Todas foram encontradas pelos próprios testes escritos nesta etapa, antes da entrega:
+| Arquivo | Testes | O que verifica |
+|---|---|---|
+| `backend/tests/test_scanner.py` | 52 | categorias, posições, casamento mais longo, erros léxicos, comentários, linhas em branco, CRLF, Unicode (CT-06 a CT-10, CT-22, CT-25) |
+| `backend/tests/test_gramatica.py` | 7 | gramática LL(1) sem conflitos; FIRST, FOLLOW e tabela M comparados com o cálculo manual; o verificador detecta conflito |
+| `backend/tests/test_parser.py` | 72 | AST comparada com referências escritas à mão (CT-01 a CT-07, CT-25, CT-26); precedência e associatividade; posições dos nós; erros sintáticos com linha, coluna, encontrado e esperados (CT-11 a CT-19); explicações específicas para 19 combinações inválidas; passo a passo; limites |
+| `backend/tests/test_analise_sintatica.py` | 24 | endpoint: tokens + AST + erros; D1 (CT-14); CT-22, CT-27, CT-28; consistência entre posições da AST e dos tokens; tokens consumidos pelo parser = tokens exibidos; entrada grande; profundidade máxima serializável; `/api/gramatica` |
+| `backend/tests/test_fixtures_frontend.py` | 6 | as respostas gravadas usadas nos testes da interface são as que o backend produz hoje |
+| `backend/tests/test_analisar.py`, `test_erros.py`, `test_processamento.py`, `test_regressao.py`, `test_contrato.py` | 86 | regressão das etapas anteriores + documentação dos novos códigos e campos |
+| `frontend/tests/analise.test.js` | 31 | árvore (precedência, ARIA, teclado, expandir/recolher, filtro, exportação JSON), destaque do nó no código e na tabela de tokens, erros por fase, marcação do ponto do erro, "Selecionar no editor", passo a passo (navegação, árvore em construção, reprodução), tabela M com a célula do erro, entradas grandes, HTML exibido como texto |
+| `frontend/tests/integracao.test.js` | 28 | backend real: os 10 exemplos mostram o resultado do seu grupo (CT-27), erro léxico real, consistência tokens ↔ código ↔ árvore, contrato HTTP |
+| `frontend/tests/interface.test.js`, `exemplos.test.js`, `comunicacao.test.js` | 170 | regressão das etapas anteriores |
+
+### Testes das etapas anteriores que foram alterados
+
+Nenhum teste foi alterado só para passar. As três alterações e seus motivos:
+
+| Teste | Alteração | Motivo |
+|---|---|---|
+| `test_analisar.py::test_formato_da_resposta_segue_o_contrato` | exigia exatamente os 4 campos antigos; agora exige os 4 antigos **e** os 3 novos | o contrato cresceu por acréscimo (`sucesso`, `lexico`, `sintatico`); os campos antigos foram mantidos e continuam verificados |
+| `integracao.test.js` "200: JSON com o formato do contrato" | `toEqual` com os 4 campos → campos antigos com o mesmo valor + verificação do resultado da análise de `x = 5 +` | mesmo motivo |
+| `test_erros.py::test_surrogate_isolado_e_422_e_nao_500` | corpo enviado em bytes | defeito do teste, descrito na linha de base |
+
+Os testes da interface usam um backend simulado; as respostas simuladas ganharam os campos novos (`tests/helpers.js`), porque o `api.js` passou a validar o contrato completo.
+
+### Falhas encontradas durante o desenvolvimento e correções
 
 | Falha | Causa | Correção |
 |---|---|---|
-| Teste de coluna esperava 13 para `x` em `s = "ação" + x` | Erro de contagem no próprio teste: são 13 caracteres antes do `x`, então a coluna é 14 | teste corrigido; o scanner estava certo |
-| Teste de caracteres fora do escopo tinha asserção que não provava nada | Escrita de forma confusa, com `or ch == "#!"` | reescrito para verificar o erro, a localização e que o scanner continua |
-| Ordem esperada da contagem por categoria não batia com a exibida | O teste seguia uma ordem diferente da de `CATEGORIAS` | teste ajustado para a ordem de exibição |
-| Trecho de substituição de texto não casava com a indentação do `app.js` | Diferença de espaços em branco entre o trecho buscado e o arquivo | substituição feita por expressão regular; verificada depois |
-| Título de teste não correspondia ao que o teste verificava | Título escrito antes do teste | título ajustado |
+| HTTP 500 ao analisar `x = ` seguido de 200 parênteses aninhados ou de uma soma com ~290 termos | o serializador JSON do FastAPI/pydantic recusa estruturas com mais de ~126 níveis (`Circular reference detected (depth exceeded)`) | árvores com mais de 100 níveis não são enviadas: a resposta diz que o programa é válido e traz um aviso. Teste de regressão no limite exato (`test_profundidade_maxima_permitida_e_serializada`) |
+| Posição de `PROGRAMA` terminava na linha vazia depois da última quebra | o fim era calculado pelo fim do texto | o programa vai do início da primeira atribuição ao fim da última |
+| Na largura de 390 px, a página ficava com 483 a 705 px de largura | a coluna da grade usava `1fr`, que cresce com a largura mínima das tabelas | `minmax(0, 1fr)`; as tabelas rolam dentro da própria caixa. Medido de novo: largura da página = 390 px nas quatro abas |
+| Erros nos valores esperados de 4 testes novos (contagem de colunas, de folhas e de números feita à mão) | conta errada no teste, e não no código | conferido caractere a caractere e corrigido o valor esperado, com o cálculo anotado no próprio teste |
 
-## Pendente (executar na máquina do desenvolvedor)
+### Inspeção visual (Chrome, 1400 × 900 e 390 × 844)
 
-Os comandos abaixo precisam de Docker, Python 3.12 com as dependências de `backend/requirements-dev.txt` e Node 18+.
+Exemplo válido (árvore e destaque), exemplo com erro (bloco de erro, marca do fim da linha), passo a passo até o erro (pilha, árvore parcial), tabela M com a célula ✗, seleção de nó (trecho e linhas da tabela de tokens destacados) e largura de celular. Nenhum erro no console do navegador.
 
-| # | Verificação | Comando | Situação |
-|---|---|---|---|
-| P1 | Suíte completa do backend (inclui `test_analise_lexica.py`, `test_scanner.py`, `test_analisar.py` atualizado) | `cd backend && pip install -r requirements-dev.txt && python -m pytest` | **Pendente** |
-| P2 | Suíte completa do frontend (inclui `analise-lexica.test.js`, os novos casos de `comunicacao.test.js` e os testes de análise léxica de `integracao.test.js`) | `cd frontend && npm install && npm test` | **Pendente** |
-| P3 | Verificação pelo Nginx com os contêineres no ar (inclui os dois casos novos) | `docker compose up --build -d` e depois `scripts/verificar-integracao.sh` | **Pendente** |
-| P4 | Instalação limpa seguindo o README | seção "Validação de instalação limpa" | **Pendente** |
+### Pendências para considerar a etapa validada
 
-Quando executar, registre aqui a quantidade de aprovados e reprovados de cada suíte. Se alguma falhar, corrija e registre a falha e a correção na tabela de falhas acima.
-
-## Mudança de contrato que os testes antigos precisaram acompanhar
-
-A resposta `200` ganhou os campos `sucesso`, `tokens` e `erros`. Por isso foram atualizados:
-
-- `test_analisar.py::test_formato_da_resposta_segue_o_contrato`: o conjunto de campos esperados agora inclui os três novos.
-- `integracao.test.js`: a comparação exata da resposta do backend real passou a incluir os tokens.
-- `helpers.js`: o backend simulado e `sucessoApi` passaram a devolver o formato novo (`tokens: []`, `erros: []`).
-
-Nenhum teste de comportamento anterior foi removido. Código com erro léxico continua retornando `200`, então os testes que esperavam `200` para código com erros de sintaxe continuam válidos.
+1. `docker compose up --build` e `scripts/verificar-integracao.sh` com os contêineres no ar.
+2. Instalação limpa seguindo só o README.
+3. Roteiro de celular (C12) em aparelho Android e iPhone.
+4. Reexecutar `python -m pytest` e `npm test` na máquina de desenvolvimento (Windows / Codespaces) e anotar os resultados aqui.

@@ -1,5 +1,5 @@
 """Modelos do contrato da API (entrada, saída e erros). Documentados em docs/API.md."""
-from typing import Optional
+from typing import Any, Optional
 
 from pydantic import BaseModel, Field
 
@@ -17,35 +17,70 @@ class Estatisticas(BaseModel):
 
 
 class Token(BaseModel):
-    """Unidade reconhecida pelo analisador léxico."""
-
-    tipo: str = Field(description="Categoria: PALAVRA_RESERVADA, IDENTIFICADOR, LITERAL_INTEIRO, "
-                                  "LITERAL_REAL, LITERAL_STRING, OPERADOR, DELIMITADOR ou QUEBRA_DE_LINHA.")
-    lexema: str = Field(description="Trecho exato do código que originou o token.")
-    linha: int = Field(ge=1, description="Linha em que o token começa (base 1).")
-    coluna: int = Field(ge=1, description="Coluna em que o token começa (base 1; conta caracteres).")
+    tipo: str = Field(description="Categoria do token (IDENTIFICADOR, LITERAL_INTEIRO, OPERADOR_ARITMETICO...).")
+    lexema: str = Field(description="Trecho exato do código que formou o token.")
+    linha: int
+    coluna: int = Field(description="Coluna inicial, a partir de 1, contada em pontos de código Unicode.")
 
 
 class ErroLexico(BaseModel):
-    """Caractere ou sequência que o analisador léxico não consegue classificar."""
+    tipo: str = "ERRO_LEXICO"
+    codigo: str = Field(description="CARACTERE_INVALIDO, NUMERO_MALFORMADO, STRING_NAO_FECHADA ou STRING_NAO_SUPORTADA.")
+    lexema: str
+    linha: int
+    coluna: int
+    mensagem: str
 
-    tipo: str = Field(default="ERRO_LEXICO")
-    lexema: str = Field(description="Trecho problemático.")
-    linha: int = Field(ge=1)
-    coluna: int = Field(ge=1)
-    mensagem: str = Field(description="Mensagem legível, pensada para ser exibida ao usuário.")
+
+class ResultadoLexico(BaseModel):
+    sucesso: bool
+    tokens: list[Token]
+    erros: list[ErroLexico]
+
+
+class ErroSintatico(BaseModel):
+    tipo: str = "ERRO_SINTATICO"
+    linha: int
+    coluna: int
+    linha_fim: int
+    coluna_fim: int
+    encontrado: str = Field(description="Lexema encontrado, ou 'fim da linha' / 'fim do código'.")
+    encontrado_tipo: str = Field(description="Categoria do token encontrado, ou FIM.")
+    esperado: list[str] = Field(description="O que seria aceito naquele ponto, em linguagem legível.")
+    esperados_terminais: list[str] = Field(description="Os mesmos itens, como terminais da gramática.")
+    regra: Optional[str] = Field(description="Regra gramatical envolvida no erro.")
+    celula_tabela: Optional[dict[str, str]] = Field(
+        description="Célula vazia da tabela M que causou o erro ({nao_terminal, terminal}), se houver.")
+    token: Optional[int] = Field(description="Índice do token encontrado em lexico.tokens (null no fim do código).")
+    mensagem: str
+    explicacao: str
+
+
+class ResultadoSintatico(BaseModel):
+    executado: bool = Field(description="false quando há erros léxicos (o parser não roda).")
+    sucesso: bool
+    ast: Optional[dict[str, Any]] = Field(description="Árvore sintática abstrata (formato em docs/API.md), ou null.")
+    arvore_parcial: list[dict[str, Any]] = Field(
+        default=[], description="Em caso de erro: subárvores já construídas antes do erro, na ordem do código.")
+    erros: list[ErroSintatico]
+    avisos: list[str] = []
+    motivo: Optional[str] = Field(default=None, description="Por que o parser não foi executado.")
+    estatisticas: Optional[dict[str, int]] = Field(description="nós e profundidade da AST.")
+    passos: list[dict[str, Any]] = Field(description="Passo a passo do parser LL(1) (pilha, entrada e ação).")
+    passos_truncados: bool
+    total_passos: int
 
 
 class RespostaRecebimento(BaseModel):
-    """Resposta 200: o código foi recebido, validado e submetido à análise léxica."""
+    """Resposta 200: o código foi recebido, validado e analisado (léxico e sintático)."""
 
     recebido: bool = True
-    sucesso: bool = Field(description="True quando a análise léxica não encontrou erros (`erros` vazio).")
     mensagem: str
     codigo: str = Field(description="Eco do código recebido, sem nenhuma alteração.")
     estatisticas: Estatisticas
-    tokens: list[Token] = Field(default_factory=list, description="Tokens em ordem de aparição.")
-    erros: list[ErroLexico] = Field(default_factory=list, description="Erros léxicos em ordem de aparição.")
+    sucesso: bool = Field(description="true se não houve erro léxico nem sintático.")
+    lexico: ResultadoLexico
+    sintatico: ResultadoSintatico
 
 
 class DetalheErro(BaseModel):

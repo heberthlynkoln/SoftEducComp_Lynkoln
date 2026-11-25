@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Visualizador de Análise Sintática — Python</title>
+  <link rel="icon" href="data:,">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -48,18 +49,133 @@
 
       <details class="escopo">
         <summary>O que este analisador aceita?</summary>
-        <p>Comandos de atribuição no formato <code>identificador = expressão</code>, com identificadores,
-           números, textos entre aspas, operadores <code>+ - * /</code> e parênteses. Estruturas como
-           <code>if</code>, <code>while</code>, funções, listas e <code>import</code> estão fora do escopo do
-           parser. O analisador léxico já reconhece palavras reservadas do Python, comentários com <code>#</code>
-           e mais operadores; veja <code>docs/ANALISE-LEXICA.md</code> no repositório.</p>
+        <p>Comandos de atribuição no formato <code>identificador = expressão</code>, uma por linha, com
+           identificadores, números, textos entre aspas, operadores <code>+ - * /</code> e parênteses.
+           Estruturas como <code>if</code>, <code>while</code>, funções, listas, <code>import</code>,
+           comparações e o sinal negativo unário (<code>-5</code>) estão fora do escopo.</p>
+        <p>O analisador passa por duas fases: a <strong>análise léxica</strong> (scanner) separa o texto em
+           tokens; a <strong>análise sintática</strong> (parser LL(1)) verifica se a sequência de tokens segue a
+           gramática e constrói a árvore sintática abstrata (AST). Se houver erro léxico, a análise
+           sintática não é executada.</p>
       </details>
     </section>
 
     <section class="cartao" aria-labelledby="titulo-resultados">
       <h2 id="titulo-resultados">2. Resultados</h2>
       <div id="resultados" class="resultados" aria-live="polite" data-estado="inicial">
-        <p class="vazio">Os resultados aparecerão aqui: os tokens identificados, com categoria, lexema e posição, e os erros léxicos, com a localização de cada um.</p>
+        <p class="vazio">Os resultados aparecerão aqui: mensagens de validação, o resumo da análise e
+           os erros léxicos e sintáticos (com posição e tokens esperados).</p>
+      </div>
+      <div id="erros-analise" class="erros-analise"></div>
+    </section>
+
+    <section id="secao-analise" class="cartao largo" aria-labelledby="titulo-analise" data-resultado="nenhum" hidden>
+      <h2 id="titulo-analise">3. Tokens, árvore sintática e passo a passo</h2>
+
+      <div class="analise-layout">
+        <div class="analise-codigo">
+          <h3 id="titulo-codigo-analisado">Código analisado</h3>
+          <p class="ajuda">Cada token aparece destacado pela sua categoria (sublinhado e cor). Selecione um nó
+             da árvore, um token ou um erro para ver o trecho correspondente.</p>
+          <pre id="codigo-analisado" class="codigo-analisado" aria-labelledby="titulo-codigo-analisado" tabindex="0"></pre>
+          <p id="aviso-codigo" class="ajuda" hidden></p>
+          <div id="legenda-categorias" class="legenda" aria-label="Legenda das categorias de token"></div>
+          <div id="detalhes-selecao" class="detalhes" aria-live="polite"></div>
+        </div>
+
+        <div class="analise-abas">
+          <div class="abas" role="tablist" aria-label="Visualizações da análise">
+            <button type="button" role="tab" id="aba-arvore" aria-controls="painel-arvore" aria-selected="true">Árvore (AST)</button>
+            <button type="button" role="tab" id="aba-tokens" aria-controls="painel-tokens" aria-selected="false" tabindex="-1">Tokens</button>
+            <button type="button" role="tab" id="aba-passos" aria-controls="painel-passos" aria-selected="false" tabindex="-1">Passo a passo</button>
+            <button type="button" role="tab" id="aba-gramatica" aria-controls="painel-gramatica" aria-selected="false" tabindex="-1">Gramática e tabela M</button>
+          </div>
+
+          <div id="painel-arvore" role="tabpanel" aria-labelledby="aba-arvore" class="painel-aba">
+            <details class="explicacao">
+              <summary>O que é a árvore sintática abstrata?</summary>
+              <p>O parser verifica se os tokens seguem a gramática e organiza o programa em uma hierarquia: a
+                 <strong>AST</strong>. Cada nó é uma construção (atribuição, operação, identificador, número...)
+                 e guarda a regra gramatical que o reconheceu e sua posição no código.</p>
+              <p>A AST é uma versão <em>simplificada</em> da árvore de derivação: os não-terminais auxiliares
+                 (<code>EXPR'</code>, <code>TERMO'</code>), o sinal <code>=</code> e o fim de linha não viram nós.
+                 A precedência aparece na forma da árvore: em <code>10 + 5 * 2</code>, a multiplicação fica
+                 <em>abaixo</em> da adição. Os parênteses são mantidos como nó <em>Agrupamento</em> para mostrar
+                 onde mudaram a organização. A derivação completa está na aba <em>Passo a passo</em>.</p>
+            </details>
+            <div class="barra-ferramentas" role="toolbar" aria-label="Ações da árvore">
+              <button type="button" id="btn-expandir" class="secundario">Expandir tudo</button>
+              <button type="button" id="btn-recolher" class="secundario">Recolher tudo</button>
+              <label class="inline" for="filtro-tipo">Destacar tipo</label>
+              <select id="filtro-tipo"><option value="">Todos os nós</option></select>
+              <button type="button" id="btn-exportar" class="secundario">Exportar AST (JSON)</button>
+            </div>
+            <p id="info-arvore" class="ajuda" aria-live="polite"></p>
+            <div id="arvore" class="arvore" role="tree" aria-label="Árvore sintática abstrata"></div>
+          </div>
+
+          <div id="painel-tokens" role="tabpanel" aria-labelledby="aba-tokens" class="painel-aba" hidden>
+            <details class="explicacao">
+              <summary>Token e lexema</summary>
+              <p>O <strong>lexema</strong> é o trecho exato do código (por exemplo, <code>preco</code>); o
+                 <strong>token</strong> é a categoria a que ele pertence (IDENTIFICADOR). O scanner reconhece
+                 mais categorias do que o parser aceita: <code>if</code> é um token válido (PALAVRA_RESERVADA),
+                 mas o parser o recusa por estar fora do subconjunto.</p>
+              <p>Espaços e comentários são descartados. A quebra de linha só vira token depois de uma linha com
+                 conteúdo, porque é ela que termina uma atribuição.</p>
+            </details>
+            <div id="contagem-categorias" class="contagem"></div>
+            <p id="aviso-tokens" class="ajuda" hidden></p>
+            <div class="tabela-rolavel">
+              <table id="tabela-tokens" class="tabela">
+                <caption class="sr-only">Tokens produzidos pela análise léxica</caption>
+                <thead><tr><th scope="col">#</th><th scope="col">Token (categoria)</th><th scope="col">Lexema</th><th scope="col">Linha</th><th scope="col">Coluna</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="painel-passos" role="tabpanel" aria-labelledby="aba-passos" class="painel-aba" hidden>
+            <details class="explicacao">
+              <summary>Como o parser LL(1) trabalha</summary>
+              <p>O parser mantém uma <strong>pilha</strong> que começa com <code>$ PROGRAMA</code>. A cada passo,
+                 olha o símbolo do topo e o próximo token da entrada: se o topo é um não-terminal, consulta a
+                 <strong>tabela M</strong> para saber qual regra aplicar; se é um terminal, ele precisa ser igual ao
+                 token (casar). Quando a célula da tabela está vazia ou o terminal não casa, há um erro sintático.</p>
+              <p>Os símbolos entre chaves, como <code>{bin}</code>, são <strong>ações semânticas</strong>: não fazem parte
+                 da gramática, apenas montam a AST enquanto o parser avança.</p>
+            </details>
+            <p id="aviso-passos" class="ajuda" hidden></p>
+            <div class="controles-passos" role="group" aria-label="Controle do passo a passo">
+              <button type="button" id="passo-inicio" class="secundario" aria-label="Primeiro passo">⏮</button>
+              <button type="button" id="passo-anterior" class="secundario" aria-label="Passo anterior">◀</button>
+              <button type="button" id="passo-reproduzir" class="secundario">▶ Reproduzir</button>
+              <button type="button" id="passo-proximo" class="secundario" aria-label="Próximo passo">▶</button>
+              <button type="button" id="passo-fim" class="secundario" aria-label="Último passo">⏭</button>
+              <label class="sr-only" for="passo-faixa">Passo</label>
+              <input type="range" id="passo-faixa" min="0" max="0" value="0">
+              <span id="passo-rotulo" class="ajuda" aria-live="polite"></span>
+            </div>
+            <div id="passo-atual" class="passo-atual"></div>
+            <h3>Árvore em construção</h3>
+            <p class="ajuda">Nós criados até este passo. A AST cresce de baixo para cima: um nó só aparece depois dos seus filhos.</p>
+            <div id="arvore-parcial" class="arvore-parcial"></div>
+            <h3>Todos os passos</h3>
+            <div class="tabela-rolavel alta">
+              <table id="tabela-passos" class="tabela">
+                <caption class="sr-only">Passos do parser LL(1)</caption>
+                <thead><tr><th scope="col">#</th><th scope="col">Pilha (topo à direita)</th><th scope="col">Entrada</th><th scope="col">Ação</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="painel-gramatica" role="tabpanel" aria-labelledby="aba-gramatica" class="painel-aba" hidden>
+            <p class="ajuda">Gramática LL(1) do subconjunto. Os conjuntos FIRST e FOLLOW e a tabela M foram
+               calculados pelo backend a partir das produções. Uma célula vazia de M significa erro sintático.</p>
+            <div id="conteudo-gramatica"><p class="vazio">A gramática será carregada ao abrir esta aba.</p></div>
+          </div>
+        </div>
       </div>
     </section>
   </main>
@@ -68,6 +184,7 @@
 
   <script src="exemplos.js"></script>
   <script src="api.js"></script>
+  <script src="analise.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
